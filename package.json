@@ -1,0 +1,24 @@
+{
+    "name": "boilerplate-express-api",
+    "version": "0.0.0",
+    "description": "Boilerplate ExpressJS API",
+    "main": "index.js",
+    "scripts": {
+        "test": "mocha",
+        "start": "pm2 start process.json",
+        "reload": "pm2 reload process.json",
+        "restart": "pm2 restart process.json",
+        "stop": "pm2 stop process.json",
+        "delete": "pm2 delete process.json"
+    },
+    "keywords": [
+        "express",
+        "api",
+        "boilerplate"
+    ],
+    "author": "Nick Soggin",
+    "repository": "https://github.com/Parellin-Technologies-LLC/boilerplate-express-api.git",
+    "license": "MIT",
+    "dependencies": {},
+    "devDependencies": {}
+}

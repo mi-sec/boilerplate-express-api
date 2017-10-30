@@ -1,0 +1,11 @@
+{
+    "apps": [
+        {
+            "name": "boilerplate-express-api",
+            "script": "index.js",
+            "instances": "max",
+            "exec_mode": "cluster",
+            "restart_delay": 5000
+        }
+    ]
+}
