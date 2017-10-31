@@ -7,8 +7,17 @@
 // @formatter:off
 
 const
+    http           = require( 'http' ),
+    https          = require( 'https' ),
     express        = require( 'express' ),
-    bodyParser     = require( 'body-parser' );
+    bodyParser     = require( 'body-parser' ),
+    compression    = require( 'compression' ),
+    methodOverride = require( 'method-override' ),
+    { prepare }    = require( './lib/middleware/prepare' ),
+    { log }        = require( './lib/middleware/log' ),
+    prettyErrors   = require( './lib/prettyErrors' );
+
+let isClosed = false;
 
 class Server
 {
@@ -18,8 +27,181 @@ class Server
             returnStackTraces: true,
             trace: false
         };
-    
+        
         this.config = typeof config === 'string' ? require( config ) : config;
-        this.errors = e;
+        
+        this.setEnvironment();
+        this.logInitialize();
+        this.setEnvironment();
+        this.expressInitialize();
+    }
+    
+    setEnvironment()
+    {
+        const
+            nodeEnv = ( process.env.node_env || process.env.NODE_ENV || 'development' ).toLowerCase();
+        
+        process.env.NODE_ENV = this.config.node_env = nodeEnv === 'production' ? nodeEnv : 'development';
+    }
+    
+    logInitialize()
+    {
+    }
+    
+    expressInitialize()
+    {
+        this.express = express();
+        this.express.disable( 'x-powered-by' );
+        this.express.locals.server = this;
+        this.express.locals.config = this.config;
+    }
+    
+    initialize()
+    {
+        if( this.config.useTLS === true )
+            this.express.all( '*', ( req, res, next ) => {
+                if( req.secure )
+                    return next();
+                if( process.env.NODE_ENV === 'production' || this.config.forceRedirect )
+                    res.redirect( `https://${req.hostname}:${this.config.port}${req.url}` );
+                else
+                    next();
+            } );
+        
+        // TODO: if your application is running behind NGINX, be sure to lock down trusted proxies
+        // TODO: to local host only for security purposes.
+        // this.express.set( 'trust proxy' );
+        
+        this.express.use( bodyParser.json() );
+        this.express.use( bodyParser.urlencoded( { extended: true } ) );
+        this.express.use( compression() );
+        this.express.use( methodOverride() );
+        
+        this.express.use( log( this ) );
+        this.express.use( prepare( this ) );
+        
+        // if( this.config.logging )
+        //     log.level = this.config.logging;
+        
+        this.config.port = this.config.port || 80;
+        
+        return new Promise(
+            ( res, rej ) => {
+                process.on( 'SIGINT', () => {
+                    // log.info( 'Received SIGINT, graceful shutdown...' );
+                    this.shutdown();
+                } );
+                
+                // TODO: LOAD API KEYS AND SETUP AUTH HERE
+                res();
+            }
+        )
+        // .then( () => done( this, 'XTServer initialized.' ) )
+            .then( () => this );
+    }
+    
+    hookRoute( item, serviceName )
+    {
+        item.exec = require( item.exec );
+        
+        if( typeof item.exec !== 'function' ) {
+            // log.fatal( `No handler found for ${item.method} ${item.route} in "${serviceName}"` );
+            process.exit( 1 );
+        }
+        
+        this.express[ item.method.toLowerCase() ](
+            item.route,
+            ( req, res ) => {
+                let p = res.locals;
+                p.config = item.route;
+                p.service = serviceName;
+                
+                // console.log( req );
+                
+                // p.timing.start( 'preamble' );
+                // p.wildcard = this.extractWildcard( p.req.route.path, p.req.path );
+                
+                // if( U.array( p.wildcard ) )
+                //     p.wildcard = p.wildcard.filter( s => !!s );
+                
+                // req.locals.timing.stop( 'auth' );
+                // req.locals.timing.stop( 'preamble' );
+                // req.locals.timing.start( 'handler' );
+                
+                // if ( p.config.typeAAA === 'AUTH' || p.config.typeAAA === 'NONE' )
+                //     p.options.user = p.user = loggedUser;
+                // else
+                //     p.data = loggedUser;
+                
+                return item.exec( req, p );
+            }
+        );
+    }
+    
+    start()
+    {
+        Object.keys( this.config.api )
+            .map( i => this.hookRoute( this.config.api[ i ], i ) );
+        
+        return new Promise( res => {
+            this.server = http.createServer( this.express );
+            
+            this.server.listen( this.config.port, () => {
+                // this.ipAddress = U.extractIP( os.networkInterfaces() );
+                // this.events = new Events( this, this.ipAddress );
+                
+                Promise.all( [
+                    // this.serviceManager.get_service( 'session' ).instance.wait_for_confirmation(),
+                    // this.waitForMiddleware
+                ] )
+                    .then( () => {
+                        console.log(
+                            '\n' + '*****'.repeat( 12 ) +
+                            `\n*\n*\n* Server started. Listening on port ${this.config.port}\n*\n*\n` +
+                            '*****'.repeat( 12 ) + '\n'
+                        );
+                        
+                        res( this );
+                    } )
+                    .catch( err => {
+                        // log.error( err );
+                        process.exit( 1 );
+                    } );
+            } );
+        } );
+    }
+    
+    async shutdown()
+    {
+        if( isClosed ) {
+            // log.info( 'Double shutdown after SIGINT, forced shutdown...' );
+            process.exit( 0 );
+        }
+        
+        isClosed = true;
+        if( this.server )
+            await this.server.close();
+        
+        // log.info( 'exiting, no errors' );
+        process.exit( 0 );
     }
 }
+
+
+if( require.main === module ) {
+    let strObj = val => typeof val === 'string' ? val : JSON.stringify( val, null, 4 );
+    
+    process.on( 'uncaughtException', err => {
+        // log.error( 'global status: ' + ( err.status || 'no status' ) + '\n' + strObj( err.message ) + '\n' + strObj( err.stack ) );
+        // log.error( err );
+    } );
+    
+    try {
+        new Server( config ).initialize().call( 'start' );
+    } catch( ex ) {
+        console.trace( ex );
+    }
+} else
+    module.exports = function( cfg = require( './config' ) ) {
+        return new Server( cfg );
+    };

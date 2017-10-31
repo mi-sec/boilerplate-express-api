@@ -19,6 +19,13 @@
     "author": "Nick Soggin",
     "repository": "https://github.com/Parellin-Technologies-LLC/boilerplate-express-api.git",
     "license": "MIT",
-    "dependencies": {},
+    "dependencies": {
+        "ansi-styles": "^3.2.0",
+        "compression": "^1.7.1",
+        "express": "^4.16.2",
+        "http-response-class": "^1.0.7",
+        "method-override": "^2.3.10",
+        "uuid": "^3.1.0"
+    },
     "devDependencies": {}
 }
