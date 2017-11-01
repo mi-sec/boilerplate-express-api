@@ -22,7 +22,8 @@ module.exports = ( req, p ) => {
                         }, []
                     );
                 
-                p.header[ 'Allow' ] = methods.join( ', ' );
+                // DO NOT DELETE: Compliancy requirement: RFC2616 10.4.7
+                p.header.Allow = methods.join( ', ' );
                 p.header[ 'Cache-Control' ] = 'max-age=600';
                 
                 p.respond( new Response( 405, api ) );
