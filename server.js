@@ -13,6 +13,7 @@ const
     bodyParser     = require( 'body-parser' ),
     compression    = require( 'compression' ),
     methodOverride = require( 'method-override' ),
+    spam           = require( './lib/middleware/spam' ),
     packet         = require( './lib/middleware/packet' ),
     log            = require( './lib/middleware/log' );
 
@@ -77,9 +78,10 @@ class Server
         this.express.use( bodyParser.urlencoded( { extended: true } ) );
         this.express.use( compression() );
         this.express.use( methodOverride() );
-        
+    
         this.express.use( log.middleware() );
         this.express.use( packet.prepare() );
+        this.express.use( spam() );
         
         this.config.port = this.config.port || 80;
         

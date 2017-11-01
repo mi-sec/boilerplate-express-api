@@ -30,6 +30,10 @@ const
         version,
         cwd: process.cwd(),
         port: 1234,
+        spamming: {
+            amnestyFrequency: 5 * 1000,
+            strikes: 3
+        },
         api: {
             ping: {
                 route: '/ping',
