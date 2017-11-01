@@ -13,9 +13,8 @@ const
     bodyParser     = require( 'body-parser' ),
     compression    = require( 'compression' ),
     methodOverride = require( 'method-override' ),
-    { prepare }    = require( './lib/middleware/prepare' ),
-    { log }        = require( './lib/middleware/log' ),
-    prettyErrors   = require( './lib/prettyErrors' );
+    packet         = require( './lib/middleware/packet' ),
+    log            = require( './lib/middleware/log' );
 
 let isClosed = false;
 
@@ -31,8 +30,8 @@ class Server
         this.config = typeof config === 'string' ? require( config ) : config;
         
         this.setEnvironment();
-        this.logInitialize();
         this.setEnvironment();
+        this.logInitialize();
         this.expressInitialize();
     }
     
@@ -44,16 +43,18 @@ class Server
         process.env.NODE_ENV = this.config.node_env = nodeEnv === 'production' ? nodeEnv : 'development';
     }
     
-    logInitialize()
-    {
-    }
-    
     expressInitialize()
     {
         this.express = express();
         this.express.disable( 'x-powered-by' );
         this.express.locals.server = this;
         this.express.locals.config = this.config;
+        packet.initialize( this );
+    }
+    
+    logInitialize()
+    {
+        log.initialize( this );
     }
     
     initialize()
@@ -77,18 +78,15 @@ class Server
         this.express.use( compression() );
         this.express.use( methodOverride() );
         
-        this.express.use( log( this ) );
-        this.express.use( prepare( this ) );
-        
-        // if( this.config.logging )
-        //     log.level = this.config.logging;
+        this.express.use( log.middleware() );
+        this.express.use( packet.prepare() );
         
         this.config.port = this.config.port || 80;
         
         return new Promise(
             ( res, rej ) => {
                 process.on( 'SIGINT', () => {
-                    // log.info( 'Received SIGINT, graceful shutdown...' );
+                    log.info( 'Received SIGINT, graceful shutdown...' );
                     this.shutdown();
                 } );
                 
@@ -96,7 +94,7 @@ class Server
                 res();
             }
         )
-        // .then( () => done( this, 'XTServer initialized.' ) )
+            .then( () => log.info( 'Server initialized.' ) )
             .then( () => this );
     }
     
@@ -105,7 +103,7 @@ class Server
         item.exec = require( item.exec );
         
         if( typeof item.exec !== 'function' ) {
-            // log.fatal( `No handler found for ${item.method} ${item.route} in "${serviceName}"` );
+            log.fatal( `No handler found for ${item.method} ${item.route} in "${serviceName}"` );
             process.exit( 1 );
         }
         
@@ -116,23 +114,6 @@ class Server
                 p.config = item.route;
                 p.service = serviceName;
                 
-                // console.log( req );
-                
-                // p.timing.start( 'preamble' );
-                // p.wildcard = this.extractWildcard( p.req.route.path, p.req.path );
-                
-                // if( U.array( p.wildcard ) )
-                //     p.wildcard = p.wildcard.filter( s => !!s );
-                
-                // req.locals.timing.stop( 'auth' );
-                // req.locals.timing.stop( 'preamble' );
-                // req.locals.timing.start( 'handler' );
-                
-                // if ( p.config.typeAAA === 'AUTH' || p.config.typeAAA === 'NONE' )
-                //     p.options.user = p.user = loggedUser;
-                // else
-                //     p.data = loggedUser;
-                
                 return item.exec( req, p );
             }
         );
@@ -141,7 +122,9 @@ class Server
     start()
     {
         Object.keys( this.config.api )
-            .map( i => this.hookRoute( this.config.api[ i ], i ) );
+            .map(
+                i => this.hookRoute( this.config.api[ i ], i )
+            );
         
         return new Promise( res => {
             this.server = http.createServer( this.express );
@@ -164,7 +147,7 @@ class Server
                         res( this );
                     } )
                     .catch( err => {
-                        // log.error( err );
+                        log.error( err );
                         process.exit( 1 );
                     } );
             } );
@@ -174,7 +157,7 @@ class Server
     async shutdown()
     {
         if( isClosed ) {
-            // log.info( 'Double shutdown after SIGINT, forced shutdown...' );
+            log.info( 'Double shutdown after SIGINT, forced shutdown...' );
             process.exit( 0 );
         }
         
@@ -182,7 +165,7 @@ class Server
         if( this.server )
             await this.server.close();
         
-        // log.info( 'exiting, no errors' );
+        log.info( 'exiting, no errors' );
         process.exit( 0 );
     }
 }
@@ -192,8 +175,8 @@ if( require.main === module ) {
     let strObj = val => typeof val === 'string' ? val : JSON.stringify( val, null, 4 );
     
     process.on( 'uncaughtException', err => {
-        // log.error( 'global status: ' + ( err.status || 'no status' ) + '\n' + strObj( err.message ) + '\n' + strObj( err.stack ) );
-        // log.error( err );
+        log.error( 'global status: ' + ( err.status || 'no status' ) + '\n' + strObj( err.message ) + '\n' + strObj( err.stack ) );
+        log.error( err );
     } );
     
     try {

@@ -49,7 +49,7 @@ const
             catchAll: {
                 route: '*',
                 method: 'ALL',
-                exec: resolve( './api/docs.js' )
+                exec: resolve( './api/methodNotAllowed.js' )
             }
         },
         useTLS: false,
