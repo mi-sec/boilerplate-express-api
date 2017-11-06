@@ -7,4 +7,9 @@
 'use strict';
 // @formatter:off
 
-require( './server' )().initialize().then( inst => inst.start() );
+const prewarm = require( './api/prewarm' );
+
+require( './server' )()
+    .initialize()
+    .then( inst => inst.start() )
+    .then( () => prewarm() );

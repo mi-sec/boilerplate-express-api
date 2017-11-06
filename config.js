@@ -31,10 +31,32 @@ const
         cwd: process.cwd(),
         port: 1234,
         spamming: {
-            amnestyFrequency: 5 * 1000,
-            strikes: 3
+            origin: 'Spam Filter',
+            clearJailsFrequency: 500,
+            allowReleaseFromJailAfter: 2000,
+            clearPrisonsFrequency: 10000,
+            allowReleaseFromPrisonAfter: 50000,
+            imprisonAfter: 3,
+            sentencingCooldown: 5000,
+            ddosDefense: {
+                limit: 20,
+                infraction: 'DDoS Attempt',
+                errorCode: 503,
+                message: 'You have been flagged as a spammer and must contact an administrator.'
+            },
+            spammingDefense: {
+                limit: 10,
+                infraction: 'Spamming Infraction',
+                errorCode: 418,
+                message: 'Spamming attempt caught'
+            }
         },
         api: {
+            prewarm: {
+                route: '/prewarm',
+                method: 'ALL',
+                exec: resolve( './api/prewarm.js' )
+            },
             ping: {
                 route: '/ping',
                 method: 'ALL',
