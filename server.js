@@ -15,7 +15,8 @@ const
     methodOverride = require( 'method-override' ),
     spam           = require( './lib/middleware/spam' ),
     packet         = require( './lib/middleware/packet' ),
-    log            = require( './lib/middleware/log' );
+    log            = require( './lib/middleware/log' ),
+    strObj         = val => typeof val === 'string' ? val : JSON.stringify( val, null, 4 );
 
 let isClosed = false;
 
@@ -78,7 +79,7 @@ class Server
         this.express.use( bodyParser.urlencoded( { extended: true } ) );
         this.express.use( compression() );
         this.express.use( methodOverride() );
-    
+        
         this.express.use( log.middleware() );
         this.express.use( packet.prepare() );
         this.express.use( spam() );
@@ -87,10 +88,19 @@ class Server
         
         return new Promise(
             ( res, rej ) => {
-                process.on( 'SIGINT', () => {
-                    log.info( 'Received SIGINT, graceful shutdown...' );
-                    this.shutdown();
-                } );
+                process
+                    .on( 'SIGINT', () => {
+                        log.info( 'Received SIGINT, graceful shutdown...' );
+                        this.shutdown();
+                    } )
+                    .on( 'uncaughtException', err => {
+                        log.error( 'global status: ' + ( err.status || 'no status' ) + '\n' + strObj( err.message ) + '\n' + strObj( err.stack ) );
+                        log.error( err );
+                    } )
+                    .on( 'exit', code => {
+                        log.info( `Received exit with code ${code}, graceful shutdown...` );
+                        this.shutdown();
+                    } );
                 
                 // TODO: LOAD API KEYS AND SETUP AUTH HERE
                 res();
@@ -106,7 +116,7 @@ class Server
         
         if( typeof item.exec !== 'function' ) {
             log.fatal( `No handler found for ${item.method} ${item.route} in "${serviceName}"` );
-            process.exit( 1 );
+            this.shutdown( 1 );
         }
         
         this.express[ item.method.toLowerCase() ](
@@ -135,10 +145,7 @@ class Server
                 // this.ipAddress = U.extractIP( os.networkInterfaces() );
                 // this.events = new Events( this, this.ipAddress );
                 
-                Promise.all( [
-                    // this.serviceManager.get_service( 'session' ).instance.wait_for_confirmation(),
-                    // this.waitForMiddleware
-                ] )
+                Promise.resolve()
                     .then( () => {
                         console.log(
                             '\n' + '*****'.repeat( 12 ) +
@@ -150,43 +157,34 @@ class Server
                     } )
                     .catch( err => {
                         log.error( err );
-                        process.exit( 1 );
+                        this.shutdown( 1 );
                     } );
             } );
         } );
     }
     
-    async shutdown()
+    shutdown( code )
     {
+        if( this.server )
+            this.server.close();
+    
         if( isClosed ) {
-            log.info( 'Double shutdown after SIGINT, forced shutdown...' );
+            log.immediate.info( 'Double shutdown after SIGINT, forced shutdown...' );
             process.exit( 0 );
         }
-        
+    
         isClosed = true;
-        if( this.server )
-            await this.server.close();
-        
-        log.info( 'exiting, no errors' );
-        process.exit( 0 );
+    
+        log.immediate.info( 'exiting, no errors' );
+        process.exit( code );
     }
 }
 
-
 if( require.main === module ) {
-    let strObj = val => typeof val === 'string' ? val : JSON.stringify( val, null, 4 );
-    
-    process.on( 'uncaughtException', err => {
-        log.error( 'global status: ' + ( err.status || 'no status' ) + '\n' + strObj( err.message ) + '\n' + strObj( err.stack ) );
-        log.error( err );
-    } );
-    
     try {
-        new Server( config ).initialize().call( 'start' );
-    } catch( ex ) {
-        console.trace( ex );
+        new Server( require( './config' ) ).initialize().then( inst => inst.start() );
+    } catch( e ) {
+        console.trace( e );
     }
 } else
-    module.exports = function( cfg = require( './config' ) ) {
-        return new Server( cfg );
-    };
+    module.exports = ( config = require( './config' ) ) => new Server( config );

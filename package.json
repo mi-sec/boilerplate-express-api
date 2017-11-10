@@ -25,6 +25,7 @@
         "express": "^4.16.2",
         "http-response-class": "^1.0.7",
         "method-override": "^2.3.10",
+        "pm2": "^2.7.2",
         "uuid": "^3.1.0"
     },
     "devDependencies": {}

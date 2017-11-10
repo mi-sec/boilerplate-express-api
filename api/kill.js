@@ -7,7 +7,9 @@
 // @formatter:off
 
 const
-    Response = require( 'http-response-class' );
+    Response = require( 'http-response-class' ),
+    { cyan } = require( 'ansi-styles' ),
+    Shutdown = require( '../lib/Shutdown' );
 
 module.exports = ( req, p ) => {
     return Promise.resolve()
@@ -15,7 +17,18 @@ module.exports = ( req, p ) => {
             () => p.respond( new Response( 200, 'Server closed' ) )
         )
         .then(
-            () => process.exit()
+            () => {
+                console.log( cyan.open + 'commencing graceful exit...' + cyan.close );
+                return new Promise(
+                    res => setTimeout(
+                        () => {
+                            Shutdown( 0 );
+                            res();
+                        },
+                        2000
+                    )
+                );
+            }
         )
         .catch(
             e => p.error( e, 500 )

@@ -7,9 +7,12 @@
 // @formatter:off
 
 const
-    { version } = require( './package.json' ),
+    {
+        version,
+        name
+    }           = require( './package.json' ),
     { resolve } = require( 'path' ),
-    config = {
+    config      = {
         [Symbol.toStringTag]() {
             return this.constructor.name;
         },
@@ -22,11 +25,11 @@ const
             else if( n === 'boolean' )
                 return !!this;
             else if( n === 'function' )
-                return ( () => {
-                } );
+                return ( () => {} );
             else
                 return true;
         },
+        name,
         version,
         cwd: process.cwd(),
         port: 1234,
@@ -52,10 +55,10 @@ const
             }
         },
         api: {
-            prewarm: {
-                route: '/prewarm',
+            home: {
+                route: '/',
                 method: 'ALL',
-                exec: resolve( './api/prewarm.js' )
+                exec: resolve( './api/home.js' )
             },
             ping: {
                 route: '/ping',
@@ -81,7 +84,7 @@ const
         useTLS: false,
         forceRedirect: true
     },
-    handler = {
+    handler     = {
         get( t, k, r ) {
             return Reflect.get( t, k, r );
         },

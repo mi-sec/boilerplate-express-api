@@ -7,31 +7,11 @@
 // @formatter:off
 
 const
-    http     = require( 'http' ),
-    config   = require( '../config' ),
+    { name } = require( '../config' ),
     Response = require( 'http-response-class' );
 
-function requestHTTP( options ) {
-    return new Promise( ( rex, rev ) => {
-        let body = '',
-            req  = http.request( options, res => {
-                res.on( 'data', chunk => body += chunk );
-                res.on( 'end', () => rex( body ) );
-                res.on( 'error', rev );
-            } );
-        
-        req.on( 'error', rev );
-        req.end();
-    } );
-}
-
 module.exports = ( req, p ) => {
-    return Promise.resolve( {
-        host: 'localhost',
-        port: config.port,
-        path: '/ping'
-    } )
-        .then( requestHTTP )
+    return Promise.resolve( name )
         .then(
             d => p ? p.respond( new Response( 200, d ) ) : d
         )
