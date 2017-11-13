@@ -7,12 +7,14 @@
 // @formatter:off
 
 const
+    fs             = require( 'fs' ),
     http           = require( 'http' ),
     https          = require( 'https' ),
     express        = require( 'express' ),
     bodyParser     = require( 'body-parser' ),
     compression    = require( 'compression' ),
     methodOverride = require( 'method-override' ),
+    redirect       = require( 'redirect-https' ),
     spam           = require( './lib/middleware/spam' ),
     packet         = require( './lib/middleware/packet' ),
     log            = require( './lib/middleware/log' ),
@@ -61,19 +63,13 @@ class Server
     
     initialize()
     {
-        if( this.config.useTLS === true )
-            this.express.all( '*', ( req, res, next ) => {
-                if( req.secure )
-                    return next();
-                if( process.env.NODE_ENV === 'production' || this.config.forceRedirect )
-                    res.redirect( `https://${req.hostname}:${this.config.port}${req.url}` );
-                else
-                    next();
-            } );
-        
         // TODO: if your application is running behind NGINX, be sure to lock down trusted proxies
         // TODO: to local host only for security purposes.
         // this.express.set( 'trust proxy' );
+    
+        if( this.config.useTLS ) {
+            this.express.use( redirect() );
+        }
         
         this.express.use( bodyParser.json() );
         this.express.use( bodyParser.urlencoded( { extended: true } ) );
@@ -139,7 +135,16 @@ class Server
             );
         
         return new Promise( res => {
-            this.server = http.createServer( this.express );
+            if( this.config.useTLS ) {
+                const
+                    options = require( 'tls' ).createSecureContext( {
+                        key: fs.readFileSync( './.ssl/server.key', 'utf8' ),
+                        cert: fs.readFileSync( './.ssl/server.crt', 'utf8' )
+                    } );
+                
+                this.server = https.createServer( options, this.express );
+            } else
+                this.server = http.createServer( this.express );
             
             this.server.listen( this.config.port, () => {
                 // this.ipAddress = U.extractIP( os.networkInterfaces() );
@@ -167,14 +172,14 @@ class Server
     {
         if( this.server )
             this.server.close();
-    
+        
         if( isClosed ) {
             log.immediate.info( 'Double shutdown after SIGINT, forced shutdown...' );
             process.exit( 0 );
         }
-    
+        
         isClosed = true;
-    
+        
         log.immediate.info( 'exiting, no errors' );
         process.exit( code );
     }

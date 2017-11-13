@@ -5,11 +5,13 @@
     "main": "index.js",
     "scripts": {
         "test": "mocha",
-        "start": "pm2 start process.json",
-        "reload": "pm2 reload process.json",
-        "restart": "pm2 restart process.json",
-        "stop": "pm2 stop process.json",
-        "delete": "pm2 delete process.json"
+        "start": "node process.js",
+        "reload": "pm2 reload boilerplate-express-api",
+        "restart": "pm2 restart boilerplate-express-api",
+        "stop": "pm2 stop boilerplate-express-api",
+        "delete": "pm2 delete boilerplate-express-api",
+        "prebuild": "~/nodec -v",
+        "build": "~/nodec --tmpdir=../.tmp -o api.app ./process.js"
     },
     "keywords": [
         "express",
@@ -21,11 +23,14 @@
     "license": "MIT",
     "dependencies": {
         "ansi-styles": "^3.2.0",
+        "body-parser": "^1.18.2",
         "compression": "^1.7.1",
         "express": "^4.16.2",
         "http-response-class": "^1.0.7",
         "method-override": "^2.3.10",
         "pm2": "^2.7.2",
+        "pmx": "^1.5.4",
+        "redirect-https": "^1.1.4",
         "uuid": "^3.1.0"
     },
     "devDependencies": {}

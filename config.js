@@ -81,7 +81,7 @@ const
                 exec: resolve( './api/methodNotAllowed.js' )
             }
         },
-        useTLS: false,
+        useTLS: true,
         forceRedirect: true
     },
     handler     = {

@@ -23,3 +23,17 @@ Additional commands:
 - `npm run reload` - Reloads code changes
 - `npm run restart` - Restarts application and session data
 - `npm run delete` - Deletes PM2 application
+
+
+Create SSL Certs:
+```
+openssl genrsa -out server-key.pem 2048
+openssl req -new -subj '/CN=localhost/O=LocalHost/C=US' -sha256 -days 365 -nodes -x509 -key server-key.pem -out server-csr.pem
+
+openssl x509 -req -in server-csr.pem -signkey server-key.pem -out server-cert.pem
+
+# Specify Diffie-Hellman Perfect Forward Secrecy
+openssl dhparam -outform PEM -out dhparam.pem 2048
+
+openssl pkcs12 -inkey server.key -in server.crt -export -out certificate.p12
+```
