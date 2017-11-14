@@ -28,8 +28,9 @@
         "express": "^4.16.2",
         "http-response-class": "^1.0.7",
         "method-override": "^2.3.10",
+        "mongodb": "^2.2.33",
+        "monk": "^6.0.5",
         "pm2": "^2.7.2",
-        "pmx": "^1.5.4",
         "redirect-https": "^1.1.4",
         "uuid": "^3.1.0"
     },

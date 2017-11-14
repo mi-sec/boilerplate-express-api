@@ -33,6 +33,11 @@ const
         version,
         cwd: process.cwd(),
         port: 1234,
+        mongodb: {
+            protocol: 'mongodb://',
+            host: 'localhost',
+            port: 27017
+        },
         spamming: {
             origin: 'Spam Filter',
             clearJailsFrequency: 500,
@@ -75,13 +80,18 @@ const
                 method: 'GET',
                 exec: resolve( './api/docs.js' )
             },
+            infoRequests: {
+                route: '/info/requests',
+                method: 'ALL',
+                exec: resolve( './api/info/requests.js' )
+            },
             catchAll: {
                 route: '*',
                 method: 'ALL',
                 exec: resolve( './api/methodNotAllowed.js' )
             }
         },
-        useTLS: true,
+        useTLS: false,
         forceRedirect: true
     },
     handler     = {

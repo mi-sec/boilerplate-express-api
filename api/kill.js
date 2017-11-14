@@ -25,7 +25,7 @@ module.exports = ( req, p ) => {
                             Shutdown( 0 );
                             res();
                         },
-                        2000
+                        1000
                     )
                 );
             }

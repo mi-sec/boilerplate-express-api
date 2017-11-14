@@ -70,10 +70,10 @@ class Server
         if( this.config.useTLS ) {
             this.express.use( redirect() );
         }
-        
-        this.express.use( bodyParser.json() );
-        this.express.use( bodyParser.urlencoded( { extended: true } ) );
+    
         this.express.use( compression() );
+        this.express.use( bodyParser.urlencoded( { extended: true } ) );
+        this.express.use( bodyParser.json() );
         this.express.use( methodOverride() );
         
         this.express.use( log.middleware() );
@@ -143,8 +143,9 @@ class Server
                     } );
                 
                 this.server = https.createServer( options, this.express );
-            } else
+            } else {
                 this.server = http.createServer( this.express );
+            }
             
             this.server.listen( this.config.port, () => {
                 // this.ipAddress = U.extractIP( os.networkInterfaces() );
