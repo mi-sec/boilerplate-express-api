@@ -99,6 +99,7 @@ class Server
                     } );
                 
                 // TODO: LOAD API KEYS AND SETUP AUTH HERE
+                
                 res();
             }
         )
