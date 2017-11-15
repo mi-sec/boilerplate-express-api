@@ -54,8 +54,9 @@ const
             },
             spammingDefense: {
                 limit: 10,
+                RetryAfter: 2000,
                 infraction: 'Spamming Infraction',
-                errorCode: 418,
+                errorCode: 429,
                 message: 'Spamming attempt caught'
             }
         },
