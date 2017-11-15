@@ -10,6 +10,7 @@ const
     Response = require( 'http-response-class' );
 
 module.exports = ( req, p ) => {
+    // TODO: NOT IMPLEMENTED YET
     return Promise.resolve()
         .then(
             () => p.respond( new Response( 200, 'ok' ) )

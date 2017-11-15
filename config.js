@@ -91,6 +91,11 @@ const
                 method: 'ALL',
                 exec: resolve( './api/info/requests.js' )
             },
+            infoServer: {
+                route: '/info/server',
+                method: 'GET',
+                exec: resolve( './api/info/server.js' )
+            },
             catchAll: {
                 route: '*',
                 method: 'ALL',
