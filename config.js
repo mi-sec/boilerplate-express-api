@@ -80,6 +80,11 @@ const
                 method: 'GET',
                 exec: resolve( './api/docs.js' )
             },
+            version: {
+                route: '/version',
+                method: 'GET',
+                exec: resolve( './api/version.js' )
+            },
             infoRequests: {
                 route: '/info/requests',
                 method: 'ALL',

@@ -4,6 +4,9 @@ lib-cov
 test-results.xml
 clover.xml
 
+# local mongo
+*data/db/*
+
 # editor and that .tmp file
 .idea
 .tmp
