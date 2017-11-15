@@ -13,9 +13,9 @@ const
 module.exports = ( req, p ) => {
     return Promise.resolve()
         .then(
-            () => p.respond( new Response( 200, version ) )
+            () => p.respond( new Response( 200, 'v' + version ) )
         )
         .catch(
-            e => p.error( e, 500 )
+            e => p.error( new Response( 500, e ) )
         );
 };

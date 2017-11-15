@@ -7,15 +7,9 @@
 // @formatter:off
 
 const
-    Response = require( 'http-response-class' ),
-    probe    = require( 'pmx' ).probe(),
-    requests = probe.meter( {
-        name: 'requestsPerSecond',
-    } );
+    Response = require( 'http-response-class' );
 
 module.exports = ( req, p ) => {
-    console.log( requests );
-    
     return Promise.resolve()
         .then(
             () => p.respond( new Response( 200, 'ok' ) )

@@ -31,6 +31,6 @@ module.exports = ( req, p ) => {
             }
         )
         .catch(
-            e => p.error( e, 500 )
+            e => p.error( new Response( 500, e ) )
         );
 };
