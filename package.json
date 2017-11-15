@@ -11,7 +11,8 @@
         "stop": "pm2 stop boilerplate-express-api",
         "delete": "pm2 delete boilerplate-express-api",
         "prebuild": "~/nodec -v",
-        "build": "~/nodec --tmpdir=../.tmp -o api.app ./process.js"
+        "build": "~/nodec --tmpdir=../.tmp -o api.app ./process.js",
+        "mongo": "mkdir -p $(pwd)/data/db/ && mongod --dbpath $(pwd)/data/db/"
     },
     "keywords": [
         "express",
@@ -26,7 +27,7 @@
         "body-parser": "^1.18.2",
         "compression": "^1.7.1",
         "express": "^4.16.2",
-        "http-response-class": "^1.0.7",
+        "http-response-class": "^1.1.1",
         "method-override": "^2.3.10",
         "mongodb": "^2.2.33",
         "monk": "^6.0.5",
