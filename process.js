@@ -36,6 +36,7 @@ connect()
     .then(
         () => start( app )
     )
+    .then( console.log )
     .then(
         () => disconnect()
     )

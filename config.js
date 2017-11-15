@@ -36,7 +36,8 @@ const
         mongodb: {
             protocol: 'mongodb://',
             host: 'localhost',
-            port: 27017
+            port: 27017,
+            masterKey: '1234'
         },
         spamming: {
             origin: 'Spam Filter',
@@ -53,7 +54,7 @@ const
                 message: 'You have been flagged as a spammer and must contact an administrator.'
             },
             spammingDefense: {
-                limit: 10,
+                limit: 3,
                 RetryAfter: 2000,
                 infraction: 'Spamming Infraction',
                 errorCode: 429,
@@ -85,6 +86,11 @@ const
                 route: '/version',
                 method: 'GET',
                 exec: resolve( './api/version.js' )
+            },
+            authCreateApiKey: {
+                route: '/auth/create',
+                method: 'POST',
+                exec: resolve( './api/auth/createApiKey.js' )
             },
             infoRequests: {
                 route: '/info/requests',
