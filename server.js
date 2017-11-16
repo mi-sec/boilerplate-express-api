@@ -15,9 +15,12 @@ const
     compression    = require( 'compression' ),
     methodOverride = require( 'method-override' ),
     redirect       = require( 'redirect-https' ),
+    authorization  = require( './lib/middleware/authorization' ),
     spam           = require( './lib/middleware/spam' ),
     packet         = require( './lib/middleware/packet' ),
     log            = require( './lib/middleware/log' ),
+    MongoDB        = require( './lib/MongoDB' ),
+    config         = require( './config' ),
     strObj         = val => typeof val === 'string' ? val : JSON.stringify( val, null, 4 );
 
 let isClosed = false;
@@ -26,6 +29,12 @@ class Server
 {
     constructor( config )
     {
+        log.immediate.log(
+            '*****'.repeat( 12 ) +
+            `\n* Server Initializing\n` +
+            '*****'.repeat( 12 )
+        );
+        
         this.debug = {
             returnStackTraces: true,
             trace: false
@@ -33,7 +42,6 @@ class Server
         
         this.config = typeof config === 'string' ? require( config ) : config;
         
-        this.setEnvironment();
         this.setEnvironment();
         this.logInitialize();
         this.expressInitialize();
@@ -61,16 +69,43 @@ class Server
         log.initialize( this );
     }
     
+    mongoInitialize()
+    {
+        return new Promise(
+            ( res, rej ) => {
+                // Connecting to users collection
+                new MongoDB( 'default', 'users' )
+                    .initialize()
+                    .then( inst => {
+                        process.userDatabase = inst;
+                        return inst.insertPilotObject( config.mongodb.masterKey );
+                    } )
+                    .then( m => {
+                        log.info(
+                            '*****'.repeat( 12 ) +
+                            `\n* Mongo Users Table Initialize.` +
+                            `\n* Master authCode: ${m}\n` +
+                            '*****'.repeat( 12 )
+                        );
+                    } )
+                    .then( res )
+                    .catch( rej );
+                
+                // Connect to different collections or databases in the future
+            }
+        );
+    }
+    
     initialize()
     {
         // TODO: if your application is running behind NGINX, be sure to lock down trusted proxies
         // TODO: to local host only for security purposes.
         // this.express.set( 'trust proxy' );
-    
+        
         if( this.config.useTLS ) {
             this.express.use( redirect() );
         }
-    
+        
         this.express.use( compression() );
         this.express.use( bodyParser.urlencoded( { extended: true } ) );
         this.express.use( bodyParser.json() );
@@ -78,6 +113,7 @@ class Server
         
         this.express.use( log.middleware() );
         this.express.use( packet.prepare() );
+        this.express.use( authorization() );
         this.express.use( spam() );
         
         this.config.port = this.config.port || 80;
@@ -87,7 +123,7 @@ class Server
                 process
                     .on( 'SIGINT', () => {
                         log.info( 'Received SIGINT, graceful shutdown...' );
-                        this.shutdown();
+                        this.shutdown( 0 );
                     } )
                     .on( 'uncaughtException', err => {
                         log.error( 'global status: ' + ( err.status || 'no status' ) + '\n' + strObj( err.message ) + '\n' + strObj( err.stack ) );
@@ -95,16 +131,35 @@ class Server
                     } )
                     .on( 'exit', code => {
                         log.info( `Received exit with code ${code}, graceful shutdown...` );
-                        this.shutdown();
+                        this.shutdown( 0 );
                     } );
                 
                 // TODO: LOAD API KEYS AND SETUP AUTH HERE
                 
-                res();
+                this.mongoInitialize()
+                    .then( res )
+                    .catch( e => rej( `Cannot connect to MongoDB\n* ${e}` ) );
             }
         )
-            .then( () => log.info( 'Server initialized.' ) )
-            .then( () => this );
+            .then(
+                () => log.info(
+                    '*****'.repeat( 12 ) +
+                    `\n* Server initialized.\n` +
+                    '*****'.repeat( 12 )
+                )
+            )
+            .then( () => this )
+            .catch(
+                e => {
+                    log.immediate.fatal(
+                        '*****'.repeat( 12 ) +
+                        `\n*\n* Error reported: ${e}\n*\n` +
+                        '*****'.repeat( 12 )
+                    );
+                    
+                    this.shutdown( 2 );
+                }
+            );
     }
     
     hookRoute( item, serviceName )
@@ -119,8 +174,8 @@ class Server
         this.express[ item.method.toLowerCase() ](
             item.route,
             ( req, res ) => {
-                let p = res.locals;
-                p.config = item.route;
+                let p     = res.locals;
+                p.config  = item.route;
                 p.service = serviceName;
                 
                 return item.exec( req, p );
@@ -155,9 +210,9 @@ class Server
                 Promise.resolve()
                     .then( () => {
                         console.log(
-                            '\n' + '*****'.repeat( 12 ) +
-                            `\n*\n*\n* Server started. Listening on port ${this.config.port}\n*\n*\n` +
-                            '*****'.repeat( 12 ) + '\n'
+                            '*****'.repeat( 12 ) +
+                            `\n*\n* Server started. Listening on port ${this.config.port}\n*\n` +
+                            '*****'.repeat( 12 )
                         );
                         
                         res( this );
@@ -172,20 +227,38 @@ class Server
     
     shutdown( code )
     {
-        if( this.server )
+        code = code || 0;
+        
+        if( this.server ) {
             this.server.close();
+            process.userDatabase.close();
+        }
         
         if( isClosed ) {
-            log.immediate.info( 'Double shutdown after SIGINT, forced shutdown...' );
+            log.immediate.info( 'Shutdown after SIGINT, forced shutdown...' );
             process.exit( 0 );
         }
         
         isClosed = true;
         
-        log.immediate.info( 'exiting, no errors' );
+        if( code === 0 )
+            log.immediate.info( config.exitCodes[ code ] );
+        else
+            log.immediate.fatal( config.exitCodes[ code ] );
+        
         process.exit( code );
     }
 }
+
+// TODO: implement cross-process talking
+// process.on( 'message', function( packet ) {
+//     process.send( {
+//         type: 'process:msg',
+//         data: {
+//             success: true
+//         }
+//     } );
+// } );
 
 if( require.main === module ) {
     try {

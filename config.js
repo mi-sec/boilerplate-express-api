@@ -25,7 +25,8 @@ const
             else if( n === 'boolean' )
                 return !!this;
             else if( n === 'function' )
-                return ( () => {} );
+                return ( () => {
+                } );
             else
                 return true;
         },
@@ -33,10 +34,12 @@ const
         version,
         cwd: process.cwd(),
         port: 1234,
+        aud: '',
         mongodb: {
             protocol: 'mongodb://',
             host: 'localhost',
-            port: 27017
+            port: 27017,
+            masterKey: ''
         },
         spamming: {
             origin: 'Spam Filter',
@@ -81,10 +84,20 @@ const
                 method: 'GET',
                 exec: resolve( './api/docs.js' )
             },
+            uuid: {
+                route: '/uuid',
+                method: 'GET',
+                exec: resolve( './api/uuid.js' )
+            },
             version: {
                 route: '/version',
                 method: 'GET',
                 exec: resolve( './api/version.js' )
+            },
+            authCreateApiKey: {
+                route: '/auth/create',
+                method: 'POST',
+                exec: resolve( './api/auth/createApiKey.js' )
             },
             infoRequests: {
                 route: '/info/requests',
@@ -101,6 +114,12 @@ const
                 method: 'ALL',
                 exec: resolve( './api/methodNotAllowed.js' )
             }
+        },
+        exitCodes: {
+            0: 'exiting, no errors, shutting down...',
+            1: 'exiting, unknown errors',
+            2: 'error connecting to MongoDB',
+            3: 'error connecting to DynamoDB'
         },
         useTLS: false,
         forceRedirect: true
