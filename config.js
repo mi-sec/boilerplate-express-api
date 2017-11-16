@@ -25,7 +25,8 @@ const
             else if( n === 'boolean' )
                 return !!this;
             else if( n === 'function' )
-                return ( () => {} );
+                return ( () => {
+                } );
             else
                 return true;
         },
@@ -107,6 +108,12 @@ const
                 method: 'ALL',
                 exec: resolve( './api/methodNotAllowed.js' )
             }
+        },
+        exitCodes: {
+            0: 'exiting, no errors, shutting down...',
+            1: 'exiting, unknown errors',
+            2: 'error connecting to MongoDB',
+            3: 'error connecting to DynamoDB'
         },
         useTLS: false,
         forceRedirect: true
