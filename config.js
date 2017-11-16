@@ -34,11 +34,12 @@ const
         version,
         cwd: process.cwd(),
         port: 1234,
+        aud: '',
         mongodb: {
             protocol: 'mongodb://',
             host: 'localhost',
             port: 27017,
-            masterKey: '1234'
+            masterKey: ''
         },
         spamming: {
             origin: 'Spam Filter',
@@ -55,7 +56,7 @@ const
                 message: 'You have been flagged as a spammer and must contact an administrator.'
             },
             spammingDefense: {
-                limit: 3,
+                limit: 10,
                 RetryAfter: 2000,
                 infraction: 'Spamming Infraction',
                 errorCode: 429,
@@ -82,6 +83,11 @@ const
                 route: '/docs',
                 method: 'GET',
                 exec: resolve( './api/docs.js' )
+            },
+            uuid: {
+                route: '/uuid',
+                method: 'GET',
+                exec: resolve( './api/uuid.js' )
             },
             version: {
                 route: '/version',

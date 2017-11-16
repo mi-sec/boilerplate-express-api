@@ -15,6 +15,7 @@ const
     compression    = require( 'compression' ),
     methodOverride = require( 'method-override' ),
     redirect       = require( 'redirect-https' ),
+    authorization  = require( './lib/middleware/authorization' ),
     spam           = require( './lib/middleware/spam' ),
     packet         = require( './lib/middleware/packet' ),
     log            = require( './lib/middleware/log' ),
@@ -82,12 +83,15 @@ class Server
                     .then( m => {
                         log.info(
                             '*****'.repeat( 12 ) +
-                            `\n* Mongo Users Table Initialize. Master Key: ${m}\n` +
+                            `\n* Mongo Users Table Initialize.` +
+                            `\n* Master authCode: ${m}\n` +
                             '*****'.repeat( 12 )
                         );
                     } )
                     .then( res )
                     .catch( rej );
+                
+                // Connect to different collections or databases in the future
             }
         );
     }
@@ -109,6 +113,7 @@ class Server
         
         this.express.use( log.middleware() );
         this.express.use( packet.prepare() );
+        this.express.use( authorization() );
         this.express.use( spam() );
         
         this.config.port = this.config.port || 80;
@@ -224,8 +229,10 @@ class Server
     {
         code = code || 0;
         
-        if( this.server )
+        if( this.server ) {
             this.server.close();
+            process.userDatabase.close();
+        }
         
         if( isClosed ) {
             log.immediate.info( 'Shutdown after SIGINT, forced shutdown...' );
