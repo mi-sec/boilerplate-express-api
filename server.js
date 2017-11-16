@@ -20,7 +20,7 @@ const
     packet         = require( './lib/middleware/packet' ),
     log            = require( './lib/middleware/log' ),
     MongoDB        = require( './lib/MongoDB' ),
-    config         = require( './config' ),
+    formalizeLog   = require( './lib/formalizeLog' ),
     strObj         = val => typeof val === 'string' ? val : JSON.stringify( val, null, 4 );
 
 let isClosed = false;
@@ -29,7 +29,7 @@ class Server
 {
     constructor( config )
     {
-        log.immediate.log(
+        log.immediate.error(
             '*****'.repeat( 12 ) +
             `\n* Server Initializing\n` +
             '*****'.repeat( 12 )
@@ -78,13 +78,15 @@ class Server
                     .initialize()
                     .then( inst => {
                         process.userDatabase = inst;
-                        return inst.insertPilotObject( config.mongodb.masterKey );
+                        return inst.insertPilotObject();
                     } )
                     .then( m => {
+                        this.config.mongodb.masterKey = m.authcode;
+                        this.config.mongodb.timestamp = m.timestamp;
+                        
                         log.info(
                             '*****'.repeat( 12 ) +
-                            `\n* Mongo Users Table Initialize.` +
-                            `\n* Master authCode: ${m}\n` +
+                            `\n* Mongo Users Table Initialize.\n` +
                             '*****'.repeat( 12 )
                         );
                     } )
@@ -142,10 +144,21 @@ class Server
             }
         )
             .then(
-                () => log.info(
-                    '*****'.repeat( 12 ) +
-                    `\n* Server initialized.\n` +
-                    '*****'.repeat( 12 )
+                () => log.notify.message(
+                    formalizeLog( [
+                        '\n' + '*****'.repeat( 12 ),
+                        `\n*   Server initialized.`,
+                        `\n*`,
+                        `\n*   Application Name: ${this.config.name}`,
+                        `\n*   Application Version: v${this.config.version}`,
+                        `\n*`,
+                        `\n*   Application ID: ${this.config.aud}`,
+                        `\n*   Master authCode: ${this.config.mongodb.masterKey}`,
+                        `\n*`,
+                        `\n*   Running on: ${this.config.useTLS ? 'https' : 'http'}://${this.config.host}:${this.config.port}/`,
+                        `\n*   Started at: ${this.config.mongodb.timestamp}`,
+                        '\n' + '*****'.repeat( 12 )
+                    ] )
                 )
             )
             .then( () => this )
@@ -209,9 +222,9 @@ class Server
                 
                 Promise.resolve()
                     .then( () => {
-                        console.log(
+                        log.immediate.log(
                             '*****'.repeat( 12 ) +
-                            `\n*\n* Server started. Listening on port ${this.config.port}\n*\n` +
+                            `\n* Server Started.\n` +
                             '*****'.repeat( 12 )
                         );
                         
@@ -242,9 +255,9 @@ class Server
         isClosed = true;
         
         if( code === 0 )
-            log.immediate.info( config.exitCodes[ code ] );
+            log.immediate.info( this.config.exitCodes[ code ] );
         else
-            log.immediate.fatal( config.exitCodes[ code ] );
+            log.immediate.fatal( this.config.exitCodes[ code ] );
         
         process.exit( code );
     }
