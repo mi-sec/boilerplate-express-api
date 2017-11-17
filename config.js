@@ -12,7 +12,7 @@ const
         name
     }           = require( './package.json' ),
     { resolve } = require( 'path' ),
-    AUTH        = require( './config/auth' ),
+    UUIDv5      = require( 'uuid/v5' ),
     config      = {
         [Symbol.toStringTag]() {
             return this.constructor.name;
@@ -26,7 +26,8 @@ const
             else if( n === 'boolean' )
                 return !!this;
             else if( n === 'function' )
-                return ( () => {} );
+                return ( () => {
+                } );
             else
                 return true;
         },
@@ -35,7 +36,10 @@ const
         cwd: process.cwd(),
         host: 'localhost',
         port: 1234,
-        aud: '3af966a5-12b1-44de-8844-ae259a918ec3',
+        JWT: {
+            AUD: '3af966a5-12b1-44de-8844-ae259a918ec3',
+            ISS: UUIDv5( name, UUIDv5.URL )
+        },
         mongodb: {
             protocol: 'mongodb://',
             host: 'localhost',
@@ -69,61 +73,56 @@ const
             home: {
                 route: '/',
                 method: 'ALL',
-                auth: AUTH.LEVEL.NONE,
                 exec: resolve( './api/home.js' )
             },
             ping: {
                 route: '/ping',
                 method: 'ALL',
-                auth: AUTH.LEVEL.NONE,
                 exec: resolve( './api/ping.js' )
             },
             kill: {
                 route: '/kill',
                 method: 'ALL',
-                auth: AUTH.LEVEL.MASTERKEY,
                 exec: resolve( './api/kill.js' )
             },
             docs: {
                 route: '/docs',
                 method: 'GET',
-                auth: AUTH.LEVEL.GROUP,
                 exec: resolve( './api/docs.js' )
             },
             uuid: {
                 route: '/uuid',
                 method: 'GET',
-                auth: AUTH.LEVEL.NONE,
                 exec: resolve( './api/uuid.js' )
             },
             version: {
                 route: '/version',
                 method: 'GET',
-                auth: AUTH.LEVEL.NONE,
                 exec: resolve( './api/version.js' )
             },
-            authCreateApiKey: {
-                route: '/auth/create',
+            userLogin: {
+                route: '/user/login',
                 method: 'POST',
-                auth: AUTH.LEVEL.ADMIN,
-                exec: resolve( './api/auth/createApiKey.js' )
+                exec: resolve( './api/user/login.js' )
+            },
+            createUser: {
+                route: '/user/create',
+                method: 'POST',
+                exec: resolve( './api/user/createUser.js' )
             },
             infoRequests: {
                 route: '/info/requests',
                 method: 'ALL',
-                auth: AUTH.LEVEL.ADMIN,
                 exec: resolve( './api/info/requests.js' )
             },
             infoServer: {
                 route: '/info/server',
                 method: 'GET',
-                auth: AUTH.LEVEL.ADMIN,
                 exec: resolve( './api/info/server.js' )
             },
             catchAll: {
                 route: '*',
                 method: 'ALL',
-                auth: AUTH.LEVEL.NONE,
                 exec: resolve( './api/methodNotAllowed.js' )
             }
         },

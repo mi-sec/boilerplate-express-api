@@ -10,6 +10,7 @@ const
     fs             = require( 'fs' ),
     http           = require( 'http' ),
     https          = require( 'https' ),
+    Guard          = require( 'express-jwt-permissions' ),
     express        = require( 'express' ),
     bodyParser     = require( 'body-parser' ),
     compression    = require( 'compression' ),
@@ -78,7 +79,10 @@ class Server
                     .initialize()
                     .then( inst => {
                         process.userDatabase = inst;
-                        return inst.insertPilotObject();
+                        return inst.insertPilotObject(
+                            this.config.JWT.AUD,
+                            this.config.JWT.ISS
+                        );
                     } )
                     .then( m => {
                         this.config.mongodb.masterKey = m.authcode;
@@ -152,7 +156,8 @@ class Server
                         `\n*   Application Name: ${this.config.name}`,
                         `\n*   Application Version: v${this.config.version}`,
                         `\n*`,
-                        `\n*   Application ID: ${this.config.aud}`,
+                        `\n*   Application AUD: ${this.config.JWT.AUD}`,
+                        `\n*   Application ISS: ${this.config.JWT.ISS}`,
                         `\n*   Master authCode: ${this.config.mongodb.masterKey}`,
                         `\n*`,
                         `\n*   Running on: ${this.config.useTLS ? 'https' : 'http'}://${this.config.host}:${this.config.port}/`,
