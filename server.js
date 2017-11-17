@@ -10,7 +10,6 @@ const
     fs             = require( 'fs' ),
     http           = require( 'http' ),
     https          = require( 'https' ),
-    Guard          = require( 'express-jwt-permissions' ),
     express        = require( 'express' ),
     bodyParser     = require( 'body-parser' ),
     compression    = require( 'compression' ),
@@ -22,6 +21,7 @@ const
     log            = require( './lib/middleware/log' ),
     MongoDB        = require( './lib/MongoDB' ),
     formalizeLog   = require( './lib/formalizeLog' ),
+    AUTH           = require( './config/authTypes' ),
     strObj         = val => typeof val === 'string' ? val : JSON.stringify( val, null, 4 );
 
 let isClosed = false;
@@ -189,16 +189,16 @@ class Server
             this.shutdown( 1 );
         }
         
-        this.express[ item.method.toLowerCase() ](
-            item.route,
-            ( req, res ) => {
+        const
+            request = ( req, res ) => {
                 let p     = res.locals;
                 p.config  = item.route;
                 p.service = serviceName;
                 
                 return item.exec( req, p );
-            }
-        );
+            };
+        
+        this.express[ item.method.toLowerCase() ]( item.route, authorization, request );
     }
     
     start()
