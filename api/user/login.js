@@ -7,11 +7,12 @@
 // @formatter:off
 
 const
-    Response = require( 'http-response-class' ),
-    jwt      = require( 'jsonwebtoken' ),
-    { JWT }  = require( '../../config' ),
-    APIError = require( '../../lib/APIError' ),
-    encrypt  = require( '../../lib/encrypt' );
+    Response    = require( 'http-response-class' ),
+    jwtoken     = require( 'jsonwebtoken' ),
+    PERMISSIONS = require( '../../config/permissions' ),
+    { JWT }     = require( '../../config' ),
+    APIError    = require( '../../lib/APIError' ),
+    encrypt     = require( '../../lib/encrypt' );
 
 module.exports = ( req, p ) => {
     return Promise.resolve()
@@ -19,6 +20,24 @@ module.exports = ( req, p ) => {
             () => {
                 if( p.username && p.password ) {
                     return process.userDatabase.get( { username: p.username } );
+                } else if( p.hasApiKey ) {
+                    if( p.apikey === process.config.masterKey ) {
+                        const
+                            data = {
+                                token: jwtoken.sign( {
+                                    aud: JWT.AUD,
+                                    sub: process.config.masterKey,
+                                    permissions: PERMISSIONS.ADMIN,
+                                    exp: ~~( Date.now() / 1000 ) + JWT.EXPIRE
+                                }, JWT.AUD ),
+                                username: 'admin'
+                            };
+                        
+                        return p.respond( new Response( 200, data ) );
+                    } else {
+                        // do future api key validation but for now only allow master key
+                        return Promise.reject( APIError.UNKNOWN_API_KEY );
+                    }
                 } else {
                     return Promise.reject( APIError.MISSING_USERNAME_PASSWORD );
                 }
@@ -38,7 +57,7 @@ module.exports = ( req, p ) => {
                 .then(
                     hash => {
                         if( hash === user.password ) {
-                            return Promise.resolve();
+                            return Promise.resolve( user );
                         } else {
                             return Promise.reject( APIError.INCORRECT_USERNAME_PASSWORD );
                         }
@@ -46,18 +65,25 @@ module.exports = ( req, p ) => {
                 )
         )
         .then( user => {
-            const
-                payload = {
-                    admin: user.admin,
-                    permissions: user.permissions
+            user.token = jwtoken.sign(
+                {
+                    aud: JWT.AUD,
+                    sub: user._id,
+                    permissions: user.permissions,
+                    exp: ~~( Date.now() / 1000 ) + JWT.EXPIRE
                 },
-                token   = jwt.sign(
-                    payload,
-                    JWT.AUD,
-                    JWT.EXPIRE
-                );
+                JWT.AUD
+            );
             
-            user.token = token;
+            delete user.permissions;
+            delete user.password;
+            delete user.salt;
+            
+            if( !user.token ) {
+                return Promise.reject( APIError.INTERNAL_AUTHORIZATION_ERROR );
+            } else {
+                return Promise.resolve( user );
+            }
         } )
         .then( user => p.respond( new Response( 200, user ) ) )
         .catch(

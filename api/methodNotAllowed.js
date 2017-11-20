@@ -26,7 +26,7 @@ module.exports = ( req, p ) => {
                 p.header.Allow = methods.join( ', ' );
                 p.header[ 'Cache-Control' ] = 'max-age=600';
                 
-                p.respond( new Response( 405, api ) );
+                p.respond( new Response( 405, `Method: ${req.path} not allowed` ) );
             }
         )
         .catch(

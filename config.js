@@ -14,13 +14,12 @@ const
     { resolve } = require( 'path' ),
     UUIDv5      = require( 'uuid/v5' ),
     spamming    = require( './config/spamming' ),
-    AUTH        = require( './config/authTypes' ),
+    PERMISSIONS = require( './config/permissions' ),
     config      = {
         [Symbol.toStringTag]() {
             return this.constructor.name;
         },
         [Symbol.toPrimitive]( n ) {
-            console.log( n, this );
             if( n === 'string' )
                 return '' + this;
             else if( n === 'number' )
@@ -41,83 +40,81 @@ const
         JWT: {
             AUD: '3af966a5-12b1-44de-8844-ae259a918ec3',
             ISS: UUIDv5( name, UUIDv5.URL ),
-            EXPIRE: {
-                expiresIn: 60 * 60
-            }
+            EXPIRE: 60 * 60 // 1h
         },
+        masterKey: '',
+        timestamp: '',
         mongodb: {
             protocol: 'mongodb://',
             host: 'localhost',
-            port: 27017,
-            masterKey: '',
-            timestamp: ''
+            port: 27017
         },
         spamming,
         api: {
-            home: {
+            '/': {
                 route: '/',
                 method: 'ALL',
-                permissions: AUTH.PERMISSIONS.NONE,
+                permissions: PERMISSIONS.ALL.HOME,
                 exec: resolve( './api/home.js' )
             },
-            ping: {
+            '/ping': {
                 route: '/ping',
                 method: 'ALL',
-                permissions: AUTH.PERMISSIONS.NONE,
+                permissions: PERMISSIONS.ALL.PING,
                 exec: resolve( './api/ping.js' )
             },
-            kill: {
+            '/kill': {
                 route: '/kill',
-                method: 'ALL',
-                permissions: AUTH.PERMISSIONS.ADMIN,
+                method: 'GET',
+                permissions: PERMISSIONS.GET.KILL,
                 exec: resolve( './api/kill.js' )
             },
-            docs: {
+            '/docs': {
                 route: '/docs',
                 method: 'GET',
-                permissions: AUTH.PERMISSIONS.NONE,
+                permissions: PERMISSIONS.GET.DOCS,
                 exec: resolve( './api/docs.js' )
             },
-            uuid: {
+            '/uuid': {
                 route: '/uuid',
                 method: 'GET',
-                permissions: AUTH.PERMISSIONS.NONE,
+                permissions: PERMISSIONS.GET.UUID,
                 exec: resolve( './api/uuid.js' )
             },
-            version: {
+            '/version': {
                 route: '/version',
                 method: 'GET',
-                permissions: AUTH.PERMISSIONS.NONE,
+                permissions: PERMISSIONS.GET.VERSION,
                 exec: resolve( './api/version.js' )
             },
-            userLogin: {
-                route: '/user/login',
-                method: 'POST',
-                permissions: AUTH.PERMISSIONS.NONE,
-                exec: resolve( './api/user/login.js' )
-            },
-            createUser: {
+            '/user/create': {
                 route: '/user/create',
                 method: 'POST',
-                permissions: AUTH.PERMISSIONS.ADMIN,
+                permissions: PERMISSIONS.POST.USER.CREATE,
                 exec: resolve( './api/user/createUser.js' )
             },
-            infoRequests: {
-                route: '/info/requests',
-                method: 'GET',
-                permissions: AUTH.PERMISSIONS.GET.ADMIN,
-                exec: resolve( './api/info/requests.js' )
+            '/user/login': {
+                route: '/user/login',
+                method: 'POST',
+                permissions: PERMISSIONS.POST.USER.LOGIN,
+                exec: resolve( './api/user/login.js' )
             },
-            infoServer: {
+            '/user/:sub': {
+                route: '/user/:sub',
+                method: 'GET',
+                permissions: PERMISSIONS.GET.USER.PERMISSIONS,
+                exec: resolve( './api/user/getPermissions.js' )
+            },
+            '/info/server': {
                 route: '/info/server',
                 method: 'GET',
-                permissions: AUTH.PERMISSIONS.GET.ADMIN,
+                permissions: PERMISSIONS.GET.INFO.SERVER,
                 exec: resolve( './api/info/server.js' )
             },
-            catchAll: {
+            '*': {
                 route: '*',
                 method: 'ALL',
-                permissions: AUTH.PERMISSIONS.NONE,
+                permissions: PERMISSIONS.ALL.ALL,
                 exec: resolve( './api/methodNotAllowed.js' )
             }
         },

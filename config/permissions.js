@@ -5,3 +5,53 @@
  *******************************************************************************************************/
 'use strict';
 // @formatter:off
+
+const
+    KEYS = {
+        SUB: '${sub}',
+        rSUB: /\${sub}/ig,
+        AUD: '${aud}',
+        rAUD: /\${aud}/ig
+    },
+    PERMISSIONS = {
+        ALL: {
+            ALL: '',
+            HOME: '',
+            PING: ''
+        },
+        GET: {
+            INFO: {
+                SERVER: 'get:info:server'
+            },
+            USER: {
+                PERMISSIONS: `get:user:permissions:${KEYS.SUB}`
+            },
+            DOCS: '',
+            KILL: 'get:kill',
+            UUID: '',
+            VERSION: ''
+        },
+        POST: {
+            USER: {
+                CREATE: 'post:user:create',
+                LOGIN: ''
+            }
+        }
+    },
+    DEFAULTS = {
+        KEYS,
+        ADMIN: [
+            PERMISSIONS.GET.INFO.SERVER,
+            PERMISSIONS.GET.USER.PERMISSIONS,
+            PERMISSIONS.GET.KILL,
+            PERMISSIONS.POST.USER.CREATE
+        ],
+        USER: [
+            PERMISSIONS.GET.USER.PERMISSIONS
+        ]
+    };
+
+module.exports = {
+    ...PERMISSIONS,
+    ...DEFAULTS
+};
