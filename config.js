@@ -50,6 +50,9 @@ const
             port: 27017
         },
         spamming,
+        maximumURISize: 1600,
+        maximumHeaderSize: 4000,
+        maximumPayloadSize: 16000,
         parameterCapture: [],
         api: {
             '/': {

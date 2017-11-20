@@ -15,6 +15,7 @@ const
     compression    = require( 'compression' ),
     methodOverride = require( 'method-override' ),
     redirect       = require( 'redirect-https' ),
+    inspector      = require( './lib/middleware/packetInspector' ),
     captureParams  = require( './lib/middleware/captureParameters' ),
     authorization  = require( './lib/middleware/authorization' ),
     spam           = require( './lib/middleware/spam' ),
@@ -22,7 +23,6 @@ const
     log            = require( './lib/middleware/log' ),
     MongoDB        = require( './lib/MongoDB' ),
     formalizeLog   = require( './lib/formalizeLog' ),
-    AUTH           = require( './config/authTypes' ),
     strObj         = val => typeof val === 'string' ? val : JSON.stringify( val, null, 4 );
 
 let isClosed = false;
@@ -120,6 +120,7 @@ class Server
 
         this.express.use( log.middleware() );
         this.express.use( packet.prepare() );
+        this.express.use( inspector() );
         this.express.use( captureParams() );
         this.express.use( authorization() );
         this.express.use( spam() );
@@ -193,7 +194,7 @@ class Server
 
         if( item.route.includes( ':' ) ) {
             const
-                path = item.route,
+                path       = item.route,
                 identifier = item.route.match( /(:)\w+/ ).shift();
 
             // This might eventually need to search more matches... /users/:id/:stuff
