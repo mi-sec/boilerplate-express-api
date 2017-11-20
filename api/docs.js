@@ -12,14 +12,20 @@ const
 
 module.exports = ( req, p ) => {
     return Promise.resolve( api )
+        .then( () => ( console.log( p ), api ) )
         .then(
             d => Object.keys( d ).reduce(
                 ( r, key ) => {
                     const
                         item        = d[ key ],
-                        allowed     = !item.permissions,
-                        tokenAllows = p.token.permissions.includes( item.permissions ) || false;
-                    
+                        allowed     = !item.permissions;
+
+                    let tokenAllows = false;
+
+                    if( p.token ) {
+                        tokenAllows = p.token.permissions.includes( item.permissions );
+                    }
+
                     if( allowed || tokenAllows ) {
                         r.push( {
                             route: item.route,
@@ -27,7 +33,7 @@ module.exports = ( req, p ) => {
                             authorized: !allowed && tokenAllows
                         } );
                     }
-                    
+
                     return r;
                 }, []
             )
@@ -36,6 +42,6 @@ module.exports = ( req, p ) => {
             d => p.respond( new Response( 200, d ) )
         )
         .catch(
-            e => p.error( new Response( 500, e ) )
+            e => p.error( new Response( 500, e.stackTrace || e.message ) )
         );
 };

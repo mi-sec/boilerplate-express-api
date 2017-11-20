@@ -59,7 +59,7 @@ module.exports = ( req, p ) => {
         )
         .then( d => {
             console.log( d );
-            
+
             delete d.data[ 0 ].permissions;
             delete d.data[ 0 ].password;
             delete d.data[ 0 ].salt;
@@ -70,7 +70,7 @@ module.exports = ( req, p ) => {
                 if( e instanceof Response ) {
                     p.error( e );
                 } else {
-                    p.error( new Response( 500, e ) );
+                    p.error( new Response( 500, e.stackTrace || e.message ) );
                 }
             }
         );

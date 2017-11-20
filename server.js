@@ -15,6 +15,7 @@ const
     compression    = require( 'compression' ),
     methodOverride = require( 'method-override' ),
     redirect       = require( 'redirect-https' ),
+    captureParams  = require( './lib/middleware/captureParameters' ),
     authorization  = require( './lib/middleware/authorization' ),
     spam           = require( './lib/middleware/spam' ),
     packet         = require( './lib/middleware/packet' ),
@@ -35,27 +36,27 @@ class Server
             `\n* Server Initializing\n` +
             '*****'.repeat( 12 )
         );
-        
+
         this.debug = {
             returnStackTraces: true,
             trace: false
         };
-        
+
         process.config = typeof config === 'string' ? require( config ) : config;
-        
+
         this.setEnvironment();
         this.logInitialize();
         this.expressInitialize();
     }
-    
+
     setEnvironment()
     {
         const
             nodeEnv = ( process.env.node_env || process.env.NODE_ENV || 'development' ).toLowerCase();
-        
+
         process.env.NODE_ENV = process.config.node_env = nodeEnv === 'production' ? nodeEnv : 'development';
     }
-    
+
     expressInitialize()
     {
         this.express = express();
@@ -64,12 +65,12 @@ class Server
         this.express.locals.config = process.config;
         packet.initialize( this );
     }
-    
+
     logInitialize()
     {
         log.initialize( this );
     }
-    
+
     mongoInitialize()
     {
         return new Promise(
@@ -87,7 +88,7 @@ class Server
                     .then( m => {
                         process.config.masterKey = '' + m.authcode;
                         process.config.timestamp = m.timestamp;
-                        
+
                         log.info(
                             '*****'.repeat( 12 ) +
                             `\n* Mongo Users Table Initialize.\n` +
@@ -96,34 +97,35 @@ class Server
                     } )
                     .then( res )
                     .catch( rej );
-                
+
                 // Connect to different collections or databases in the future
             }
         );
     }
-    
+
     initialize()
     {
         // TODO: if your application is running behind NGINX, be sure to lock down trusted proxies
         // TODO: to local host only for security purposes.
         // this.express.set( 'trust proxy' );
-        
+
         if( process.config.useTLS ) {
             this.express.use( redirect() );
         }
-        
+
         this.express.use( compression() );
         this.express.use( bodyParser.urlencoded( { extended: true } ) );
         this.express.use( bodyParser.json() );
         this.express.use( methodOverride() );
-        
+
         this.express.use( log.middleware() );
         this.express.use( packet.prepare() );
+        this.express.use( captureParams() );
         this.express.use( authorization() );
         this.express.use( spam() );
-        
+
         process.config.port = process.config.port || 80;
-        
+
         return new Promise(
             ( res, rej ) => {
                 process
@@ -139,9 +141,9 @@ class Server
                         log.info( `Received exit with code ${code}, graceful shutdown...` );
                         this.shutdown( 0 );
                     } );
-                
+
                 // TODO: LOAD API KEYS AND SETUP AUTH HERE
-                
+
                 this.mongoInitialize()
                     .then( res )
                     .catch( e => rej( `Cannot connect to MongoDB\n* Recommend running \`npm run mongo\`\n* ${e}` ) );
@@ -174,43 +176,38 @@ class Server
                         `\n*\n* Error reported: ${e}\n*\n` +
                         '*****'.repeat( 12 )
                     );
-                    
+
                     this.shutdown( 2 );
                 }
             );
     }
-    
+
     hookRoute( item, serviceName )
     {
         item.exec = require( item.exec );
-        
+
         if( typeof item.exec !== 'function' ) {
             log.fatal( `No handler found for ${item.method} ${item.route} in "${serviceName}"` );
             this.shutdown( 1 );
         }
-        
+
         const
             request = ( req, res ) => {
-                console.log( req.params );
-                
                 if( res.locals ) {
-                    res.locals.config  = item.route;
-                    res.locals.service = serviceName;
                     return item.exec( req, res.locals );
                 }
             };
-        
-        // this.express[ item.method.toLowerCase() ]( item.route, request );
-        this.express.use( item.route, request );
+
+        this.express[ item.method.toLowerCase() ]( item.route, request );
     }
-    
+
     start()
     {
         Object.keys( process.config.api )
             .map(
                 i => this.hookRoute( process.config.api[ i ], i )
             );
-        
+
         return new Promise( res => {
             if( process.config.useTLS ) {
                 const
@@ -218,16 +215,16 @@ class Server
                         key: fs.readFileSync( './.ssl/server.key', 'utf8' ),
                         cert: fs.readFileSync( './.ssl/server.crt', 'utf8' )
                     } );
-                
+
                 this.server = https.createServer( options, this.express );
             } else {
                 this.server = http.createServer( this.express );
             }
-            
+
             this.server.listen( process.config.port, () => {
                 // this.ipAddress = U.extractIP( os.networkInterfaces() );
                 // this.events = new Events( this, this.ipAddress );
-                
+
                 Promise.resolve()
                     .then( () => {
                         log.immediate.log(
@@ -235,7 +232,7 @@ class Server
                             `\n* Server Started.\n` +
                             '*****'.repeat( 12 )
                         );
-                        
+
                         res( this );
                     } )
                     .catch( err => {
@@ -245,28 +242,28 @@ class Server
             } );
         } );
     }
-    
+
     shutdown( code )
     {
         code = code || 0;
-        
+
         if( this.server ) {
             this.server.close();
             process.userDatabase.close();
         }
-        
+
         if( isClosed ) {
             log.immediate.info( 'Shutdown after SIGINT, forced shutdown...' );
             process.exit( 0 );
         }
-        
+
         isClosed = true;
-        
+
         if( code === 0 )
             log.immediate.info( process.config.exitCodes[ code ] );
         else
             log.immediate.fatal( process.config.exitCodes[ code ] );
-        
+
         process.exit( code );
     }
 }

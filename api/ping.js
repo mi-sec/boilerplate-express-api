@@ -15,6 +15,6 @@ module.exports = ( req, p ) => {
             () => p.respond( new Response( 200, 'pong' ) )
         )
         .catch(
-            e => p.error( new Response( 500, e ) )
+            e => p.error( new Response( 500, e.stackTrace || e.message ) )
         );
 };

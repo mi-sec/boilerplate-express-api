@@ -32,7 +32,7 @@ module.exports = ( req, p ) => {
                                 }, JWT.AUD ),
                                 username: 'admin'
                             };
-                        
+
                         return p.respond( new Response( 200, data ) );
                     } else {
                         // do future api key validation but for now only allow master key
@@ -74,11 +74,11 @@ module.exports = ( req, p ) => {
                 },
                 JWT.AUD
             );
-            
+
             delete user.permissions;
             delete user.password;
             delete user.salt;
-            
+
             if( !user.token ) {
                 return Promise.reject( APIError.INTERNAL_AUTHORIZATION_ERROR );
             } else {
@@ -91,7 +91,7 @@ module.exports = ( req, p ) => {
                 if( e instanceof Response ) {
                     p.error( e );
                 } else {
-                    p.error( new Response( 500, e ) );
+                    p.error( new Response( 500, e.stackTrace || e.message ) );
                 }
             }
         );
