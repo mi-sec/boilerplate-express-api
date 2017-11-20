@@ -1,19 +1,18 @@
 /** ****************************************************************************************************
- * File: prewarm.js
+ * File: getPermissions.js
  * Project: boilerplate-express-api
- * @author Nick Soggin <iSkore@users.noreply.github.com> on 06-Nov-2017
+ * @author Nick Soggin <iSkore@users.noreply.github.com> on 20-Nov-2017
  *******************************************************************************************************/
 'use strict';
 // @formatter:off
 
 const
-    { name } = require( '../config' ),
     Response = require( 'http-response-class' );
 
 module.exports = ( req, p ) => {
-    return Promise.resolve( name )
+    return Promise.resolve()
         .then(
-            d => p ? p.respond( new Response( 200, d ) ) : d
+            () => p.respond( new Response( 200, p.token.permissions ) )
         )
         .catch(
             e => p.error( new Response( 500, e.stackTrace || e.message ) )

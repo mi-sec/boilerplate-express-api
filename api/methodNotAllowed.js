@@ -17,16 +17,18 @@ module.exports = ( req, p ) => {
                 const
                     methods = Object.keys( api ).reduce(
                         ( r, i ) => {
-                            r.push( api[ i ].method + ' ' + api[ i ].route );
+                            if( api[ i ].route === req.path ) {
+                                r.push( api[ i ].method + ' ' + api[ i ].route );
+                            }
                             return r;
                         }, []
                     );
-                
-                // DO NOT DELETE: Compliancy requirement: RFC2616 10.4.7
+
+                // DO NOT DELETE: Compliance requirement: RFC2616 10.4.7
                 p.header.Allow = methods.join( ', ' );
                 p.header[ 'Cache-Control' ] = 'max-age=600';
-                
-                p.respond( new Response( 405, api ) );
+
+                p.respond( new Response( 405, `Method: ${req.method} on ${req.path} not allowed` ) );
             }
         )
         .catch(

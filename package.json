@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "test": "mocha",
+        "dev": "nodemon ./index.js",
         "start": "node process.js",
         "reload": "pm2 reload boilerplate-express-api",
         "restart": "pm2 restart boilerplate-express-api",
@@ -27,9 +28,8 @@
         "body-parser": "^1.18.2",
         "compression": "^1.7.1",
         "express": "^4.16.2",
-        "express-jwt": "^5.3.0",
-        "express-jwt-permissions": "^1.0.0",
         "http-response-class": "^1.1.1",
+        "jsonwebtoken": "^8.1.0",
         "method-override": "^2.3.10",
         "mongodb": "^2.2.33",
         "monk": "^6.0.5",
@@ -37,5 +37,7 @@
         "redirect-https": "^1.1.4",
         "uuid": "^3.1.0"
     },
-    "devDependencies": {}
+    "devDependencies": {
+        "nodemon": "^1.12.1"
+    }
 }
