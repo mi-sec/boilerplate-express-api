@@ -70,6 +70,9 @@ module.exports = ( req, p ) => {
                     aud: JWT.AUD,
                     sub: user._id,
                     permissions: user.permissions,
+                    ext: {
+                        hello: 'world'
+                    },
                     exp: ~~( Date.now() / 1000 ) + JWT.EXPIRE
                 },
                 JWT.AUD

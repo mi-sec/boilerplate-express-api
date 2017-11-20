@@ -50,6 +50,7 @@ const
             port: 27017
         },
         spamming,
+        parameterCapture: [],
         api: {
             '/': {
                 route: '/',
@@ -99,11 +100,17 @@ const
                 permissions: PERMISSIONS.POST.USER.LOGIN,
                 exec: resolve( './api/user/login.js' )
             },
-            '/user/:sub': {
-                route: '/user/:sub',
+            '/user/permissions/:sub': {
+                route: '/user/permissions/:sub',
                 method: 'GET',
                 permissions: PERMISSIONS.GET.USER.PERMISSIONS,
                 exec: resolve( './api/user/getPermissions.js' )
+            },
+            '/user/valid': {
+                route: '/user/valid',
+                method: 'GET',
+                permissions: PERMISSIONS.GET.USER.VALID,
+                exec: resolve( './api/user/valid.js' )
             },
             '/info/server': {
                 route: '/info/server',

@@ -191,6 +191,20 @@ class Server
             this.shutdown( 1 );
         }
 
+        if( item.route.includes( ':' ) ) {
+            const
+                path = item.route,
+                identifier = item.route.match( /(:)\w+/ ).shift();
+
+            // This might eventually need to search more matches... /users/:id/:stuff
+            process.config.parameterCapture.push( {
+                path,
+                identifier,
+                pre: path.substr( 0, path.indexOf( identifier ) ),
+                post: path.substr( path.indexOf( identifier ) + identifier.length )
+            } );
+        }
+
         const
             request = ( req, res ) => {
                 if( res.locals ) {

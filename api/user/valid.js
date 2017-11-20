@@ -1,10 +1,10 @@
 /** ****************************************************************************************************
- * File: getPermissions.js
+ * File: valid.js
  * Project: boilerplate-express-api
  * @author Nick Soggin <iSkore@users.noreply.github.com> on 20-Nov-2017
  *******************************************************************************************************/
 'use strict';
-// @formatter:off
+// @formatter: off
 
 const
     Response = require( 'http-response-class' );
@@ -12,7 +12,7 @@ const
 module.exports = ( req, p ) => {
     return Promise.resolve()
         .then(
-            () => p.respond( new Response( 200, p.token.permissions ) )
+            () => p.respond( new Response( 200, p.token ) )
         )
         .catch(
             e => p.error( new Response( 500, e.stackTrace || e.message ) )

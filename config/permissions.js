@@ -24,7 +24,8 @@ const
                 SERVER: 'get:info:server'
             },
             USER: {
-                PERMISSIONS: `get:user:permissions:${KEYS.SUB}`
+                PERMISSIONS: `get:user:permissions:${KEYS.SUB}`,
+                VALID: 'get:user:valid'
             },
             DOCS: '',
             KILL: 'get:kill',
@@ -47,7 +48,8 @@ const
             PERMISSIONS.POST.USER.CREATE
         ],
         USER: [
-            PERMISSIONS.GET.USER.PERMISSIONS
+            PERMISSIONS.GET.USER.PERMISSIONS,
+            PERMISSIONS.GET.USER.VALID
         ]
     };
 
