@@ -5,8 +5,21 @@
  * @version 0.0.0
  *******************************************************************************************************/
 'use strict';
-// @formatter:off
 
-require( './server' )()
-    .initialize()
-    .then( inst => inst.start() );
+const
+	gonfig = require( 'gonfig' );
+
+gonfig
+	.setLogLevel( gonfig.LEVEL.BASIC )
+	.setEnvironment( gonfig.ENV.DEVELOPMENT )
+	.load( 'server', 'config/server.json' )
+	.load( 'api', 'config/api.js' )
+	.refresh();
+
+( async () => {
+	await require( './init' )();
+
+	require( './server' )
+		.initialize()
+		.start();
+} )();

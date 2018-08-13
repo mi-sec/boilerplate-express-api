@@ -7,14 +7,14 @@
 // @formatter: off
 
 const
-    Response = require( 'http-response-class' );
+	Response = require( 'http-response-class' );
 
 module.exports = ( req, p ) => {
-    return Promise.resolve()
-        .then(
-            () => p.respond( new Response( 200, p.token ) )
-        )
-        .catch(
-            e => p.error( new Response( 500, e.stackTrace || e.message ) )
-        );
+	return Promise.resolve()
+		.then(
+			() => p.respond( new Response( 200, p.token ) )
+		)
+		.catch(
+			e => p.error( new Response( 500, e.stackTrace || e.message ) )
+		);
 };

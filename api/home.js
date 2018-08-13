@@ -1,21 +1,16 @@
 /** ****************************************************************************************************
- * File: prewarm.js
+ * File: home.js
  * Project: boilerplate-express-api
  * @author Nick Soggin <iSkore@users.noreply.github.com> on 06-Nov-2017
  *******************************************************************************************************/
 'use strict';
-// @formatter:off
 
 const
-    { name } = require( '../config' ),
-    Response = require( 'http-response-class' );
+	gonfig   = require( 'gonfig' ),
+	Response = require( 'http-response-class' );
 
-module.exports = ( req, p ) => {
-    return Promise.resolve( name )
-        .then(
-            d => p ? p.respond( new Response( 200, d ) ) : d
-        )
-        .catch(
-            e => p.error( new Response( 500, e.stackTrace || e.message ) )
-        );
+module.exports = ( req, res ) => {
+	return Promise.resolve( gonfig.get( gonfig.sympkg ) )
+		.then( ( { name, version } ) => res.respond( new Response( 200, { name, version } ) ) )
+		.catch( e => res.respond( new Response( e.statusCode || 500, e.stack || e.message || e ) ) );
 };

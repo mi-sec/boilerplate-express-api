@@ -1,11 +1,17 @@
+# awsmobilejs
+appsync-info.json
+aws-info.json
+project-info.json
+aws-exports.*
+awsmobilejs/.awsmobile/backend-build
+awsmobilejs/\#current-backend-info
+~awsmobilejs-*/
+
 # code coverage
 coverage
 lib-cov
 test-results.xml
 clover.xml
-
-# local mongo
-*data/db/*
 
 # editor and that .tmp file
 .idea
@@ -13,6 +19,7 @@ clover.xml
 .tags
 .tags1
 *.ss*
+.config
 
 # Node logs
 npm-debug.log*
@@ -47,6 +54,7 @@ jspm_packages
 # Yeoman/bow/&c.
 bower_components/
 build/
+dist/
 
 # Linux ignores
 *~
@@ -490,4 +498,3 @@ paket-files/
 
 # JetBrains Rider
 *.sln.iml
-
