@@ -39,6 +39,11 @@ module.exports = [
 		exec: resolve( './api/version' )
 	},
 	{
+		route: '/user/signup',
+		method: 'POST',
+		exec: resolve( './api/user/signup' )
+	},
+	{
 		route: '*',
 		method: 'ALL',
 		exec: resolve( './api/methodNotAllowed' )

@@ -15,6 +15,7 @@ const
 	express       = require( 'express' ),
 	cors          = require( 'cors' ),
 	bodyParser    = require( 'body-parser' ),
+	passport      = require( 'passport' ),
 	packet        = require( './lib/middleware/packet' ),
 	inspection    = require( './lib/middleware/inspection' ),
 	captureParams = require( './lib/middleware/captureParams' ),
@@ -54,6 +55,8 @@ class Server
 		this.express.use( bodyParser.raw( { limit: '5gb' } ) );
 		this.express.use( bodyParser.json() );
 		this.express.use( cors() );
+
+		this.express.use( passport.initialize() );
 
 		this.express.use( packet() );
 		this.express.use( inspection() );

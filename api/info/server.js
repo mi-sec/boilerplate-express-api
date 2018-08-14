@@ -24,7 +24,7 @@ module.exports = ( req, p ) => {
 					architecture: os.arch(),
 					cpu: cpus[ 0 ].model,
 					cores: cpus.length,
-					clockSpeed: `${cpus.reduce( ( r, i ) => ( r += i.speed, r ), 0 ) / cpus.length} MHz`,
+					clockSpeed: `${ cpus.reduce( ( r, i ) => ( r += i.speed, r ), 0 ) / cpus.length } MHz`,
 					totalMemory: bytesToSize( os.totalmem() )
 				}
 			)

@@ -11,10 +11,12 @@ const
 
 gonfig
 	.setLogLevel( gonfig.LEVEL.BASIC )
-	.setEnvironment( gonfig.ENV.DEVELOPMENT )
+	.setEnvironment( gonfig.ENV.DEBUG )
 	.load( 'server', 'config/server.json' )
 	.load( 'api', 'config/api.js' )
 	.refresh();
+
+gonfig.set( 'authentication', 'LocalAuthentication' );
 
 ( async () => {
 	await require( './init' )();

@@ -8,8 +8,8 @@
 const
 	Response = require( 'http-response-class' );
 
-module.exports = ( req, res ) => {
-	return Promise.resolve( res.header.RequestID )
-		.then( d => res.respond( new Response( 200, d ) ) )
-		.catch( e => res.respond( new Response( e.statusCode || 500, e.stack || e.message || e ) ) );
+module.exports = ( req, p ) => {
+	return Promise.resolve( p.header.RequestID )
+		.then( d => p.respond( new Response( 200, d ) ) )
+		.catch( e => p.respond( new Response( e.statusCode || 500, e.data || e.stack || e.message || e ) ) );
 };

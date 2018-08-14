@@ -9,8 +9,8 @@ const
 	gonfig   = require( 'gonfig' ),
 	Response = require( 'http-response-class' );
 
-module.exports = ( req, res ) => {
+module.exports = ( req, p ) => {
 	return Promise.resolve( gonfig.get( gonfig.sympkg ) )
-		.then( ( { version } ) => res.respond( new Response( 200, version ) ) )
-		.catch( e => res.respond( new Response( e.statusCode || 500, e.stack || e.message || e ) ) );
+		.then( ( { version } ) => p.respond( new Response( 200, `v${ version }` ) ) )
+		.catch( e => p.respond( new Response( e.statusCode || 500, e.data || e.stack || e.message || e ) ) );
 };
