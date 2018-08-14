@@ -14,6 +14,7 @@ module.exports = {
 			script,
 			exec_mode: 'cluster',
 			instances: 0,
+			max_memory_restart: '4G',
 			restartDelay: 5000,
 			env: {
 				NODE_ENV: 'development',
