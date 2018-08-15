@@ -8,7 +8,7 @@
 const
 	Response       = require( 'http-response-class' ),
 	argon2         = require( 'argon2' ),
-	Authentication = require( '../../lib/Authentication' ),
+	Authentication = require( '../../lib/authentication/Authentication' ),
 	{
 		User,
 		validate
@@ -22,5 +22,5 @@ module.exports = ( req, p ) => {
 		)
 		.then( d => Authentication.signUp( d ) )
 		.then( d => p.respond( d ) )
-		.catch( e => p.respond( new Response( e.statusCode || 500, e.data || e.stack || e.message || e ) ) )
+		.catch( e => p.respond( new Response( e.statusCode || 500, e.data || e.stack || e.message || e ) ) );
 };

@@ -6,26 +6,22 @@
 'use strict';
 
 const
-	pm2    = require( 'pm2' ),
-	config = require( './ecosystem.config' );
+	cluster = require( 'cluster' ),
+	cpus    = require( 'os' ).cpus().length;
 
-pm2.connect( err => {
-	if( err ) {
-		console.error( err );
-		process.exit( 2 );
+if( cluster.isMaster ) {
+	console.log( `Master ${ process.pid } is running` );
+	
+	for( let i = 0; i < cpus; i++ ) {
+		cluster.fork();
 	}
 	
-	for( let i = 0; i < config.apps.length; i++ ) {
-		pm2.start( config.apps[ i ],
-			( err, apps ) => {
-				if( err ) {
-					throw err;
-				}
-				
-				console.log( apps );
-				
-				pm2.disconnect();
-			}
-		);
-	}
-} );
+	cluster.on( 'exit', ( worker, code, signal ) => {
+		console.log( signal );
+		console.log( `worker ${ worker.process.pid } exited with code ${ code }` );
+	} );
+} else {
+	console.log( `Worker ${ process.pid } started` );
+	
+	require( './index' );
+}

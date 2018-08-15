@@ -2,7 +2,6 @@
  * File: index.js
  * Project: boilerplate-express-api
  * @author Nick Soggin <iSkore@users.noreply.github.com> on 30-OCT-2017
- * @version 0.0.0
  *******************************************************************************************************/
 'use strict';
 
@@ -13,15 +12,19 @@ gonfig
 	.setLogLevel( gonfig.LEVEL.BASIC )
 	.setEnvironment( gonfig.ENV.DEBUG )
 	.load( 'server', 'config/server.json' )
-	.load( 'api', 'config/api.js' )
+	.load( 'api', 'config/api.json' )
 	.refresh();
 
 gonfig.set( 'authentication', 'LocalAuthentication' );
 
-( async () => {
-	await require( './init' )();
+const
+	initEnv = require( './init' ),
+	server  = require( './server' );
 
-	require( './server' )
+( async () => {
+	await initEnv();
+	
+	server
 		.initialize()
 		.start();
 } )();
