@@ -5,10 +5,17 @@
  *******************************************************************************************************/
 'use strict';
 
-const Response = require( 'http-response-class' );
+const
+	Response = require( 'http-response-class' );
 
-module.exports = ( req, p ) => {
+module.exports = ( req, res ) => {
+	const p = res.locals;
+	
 	return Promise.resolve( `Method: ${ req.method } on ${ req.path } not allowed` )
 		.then( d => p.respond( new Response( 405, d ) ) )
-		.catch( e => p.respond( new Response( e.statusCode || 500, e.data || e.stack || e.message || e ) ) );
+		.catch(
+			e => e instanceof Response ?
+				p.respond( e ) :
+				p.respond( new Response( e.statusCode || 500, e.data || e.stack || e.message || e ) )
+		);
 };

@@ -16,6 +16,9 @@ module.exports = {
 			instances: 0,
 			max_memory_restart: '4G',
 			restartDelay: 5000,
+			node_args: '--no-warnings',
+			error_file: 'logs/err.log',
+			out_file: 'logs/out.log',
 			env: {
 				NODE_ENV: 'development',
 				DEBUG: true

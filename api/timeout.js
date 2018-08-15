@@ -1,15 +1,18 @@
 /** ****************************************************************************************************
- * @file: timeout.js
- * @project: boilerplate-express-api
- * @author Nick Soggin <iSkore@users.noreply.github.com> on 13-Aug-2018
+ * File: timeout.js
+ * Project: boilerplate-express-api
+ * @author Nick Soggin <iSkore@users.noreply.github.com> on 31-Oct-2017
  *******************************************************************************************************/
 'use strict';
 
 const
 	Response = require( 'http-response-class' );
 
-module.exports = ( req, p ) => {
+module.exports = ( req, res ) => {
+	const p = res.locals;
+	
 	p.clearTimeout();
+	
 	return Promise.resolve( p.params.time * 1000 )
 		.then( d => new Promise( r => setTimeout( r, d ) ) )
 		.then( () => p.respond( new Response( 408, 'Request Timeout' ) ) )

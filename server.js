@@ -24,6 +24,9 @@ const
 
 let isClosed = false;
 
+/**
+ * Server
+ */
 class Server
 {
 	constructor()
@@ -31,21 +34,32 @@ class Server
 		this.startTime = new Date();
 	}
 	
+	/**
+	 * hookRoute
+	 * @param {object} item - item from the api config
+	 * @returns {*} - returns item with required execution function
+	 */
 	hookRoute( item )
 	{
 		item.exec = require( resolve( item.exec ) );
 		
+		// hook route to express
 		this.express[ item.method.toLowerCase() ](
 			item.route,
 			captureParams(),
 			( req, res ) => res && res.locals ?
-				item.exec( req, res.locals ) :
+				item.exec( req, res ) :
 				res.status( 500 ).send( 'unknown' )
 		);
 		
 		return item;
 	}
 	
+	/**
+	 * expressInitialize
+	 * @description
+	 * Initialize express middleware and hook the routes from api.json configuration
+	 */
 	expressInitialize()
 	{
 		this.express = express();
@@ -63,9 +77,18 @@ class Server
 		
 		gonfig.get( 'api' ).map( item => this.hookRoute( item ) );
 		
+		// capture all unhandled errors that might occur
 		this.express.use( require( './lib/middleware/captureErrors' )() );
 	}
 	
+	/**
+	 * initialize
+	 * @description
+	 * Hook `process` variables `uncaughtException`, `unhandledRejection`, and `exit` to handle any potential errors
+	 * that may occur. This will allow us to properly handle exit and log all non-V8 level errors without the program
+	 * crashing.
+	 * @returns {Server} - this
+	 */
 	initialize()
 	{
 		this.expressInitialize();
@@ -85,6 +108,11 @@ class Server
 		return this;
 	}
 	
+	/**
+	 * start
+	 * @description
+	 * create instance of an http server and start listening on the port specified in server.json
+	 */
 	start()
 	{
 		this.server = http.createServer( this.express );
@@ -100,6 +128,10 @@ class Server
 		);
 	}
 	
+	/**
+	 * shutdown
+	 * @param {number} code - exit code
+	 */
 	shutdown( code = 0 )
 	{
 		if( this.server ) {
@@ -118,4 +150,10 @@ class Server
 	}
 }
 
+/**
+ * module.exports
+ * @description
+ * export a singleton instance of Server
+ * @type {Server}
+ */
 module.exports = new Server();

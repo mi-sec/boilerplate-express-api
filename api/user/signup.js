@@ -1,7 +1,7 @@
 /** ****************************************************************************************************
- * @file: signup.js
- * @project: boilerplate-express-api
- * @author Nick Soggin <iSkore@users.noreply.github.com> on 14-Aug-2018
+ * File: signup.js
+ * Project: boilerplate-express-api
+ * @author Nick Soggin <iSkore@users.noreply.github.com> on 31-Oct-2017
  *******************************************************************************************************/
 'use strict';
 

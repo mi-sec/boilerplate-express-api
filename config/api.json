@@ -10,6 +10,11 @@
 		"exec": "./api/kill"
 	},
 	{
+		"route": "/docs",
+		"method": "GET",
+		"exec": "./api/docs"
+	},
+	{
 		"route": "/ping",
 		"method": "GET",
 		"exec": "./api/ping"
@@ -28,6 +33,11 @@
 		"route": "/version",
 		"method": "GET",
 		"exec": "./api/version"
+	},
+	{
+		"route": "/logs",
+		"method": "GET",
+		"exec": "./api/logs/getLogs"
 	},
 	{
 		"route": "/user/signup",

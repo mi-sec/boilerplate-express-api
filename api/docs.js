@@ -6,41 +6,17 @@
 'use strict';
 
 const
-	Response = require( 'http-response-class' ),
-	{ api }  = require( '../config' );
+	gonfig   = require( 'gonfig' ),
+	Response = require( 'http-response-class' );
 
-module.exports = ( req, p ) => {
-	return Promise.resolve( api )
-		.then( () => ( console.log( p ), api ) )
-		.then(
-			d => Object.keys( d ).reduce(
-				( r, key ) => {
-					const
-						item    = d[ key ],
-						allowed = !item.permissions;
-
-					let tokenAllows = false;
-
-					if( p.token ) {
-						tokenAllows = p.token.permissions.includes( item.permissions );
-					}
-
-					if( allowed || tokenAllows ) {
-						r.push( {
-							route: item.route,
-							method: item.method,
-							authorized: !allowed && tokenAllows
-						} );
-					}
-
-					return r;
-				}, []
-			)
-		)
-		.then(
-			d => p.respond( new Response( 200, d ) )
-		)
+module.exports = ( req, res ) => {
+	const p = res.locals;
+	
+	return Promise.resolve( gonfig.get( 'api' ) )
+		.then( d => p.respond( new Response( 200, d ) ) )
 		.catch(
-			e => p.error( new Response( 500, e.stackTrace || e.message ) )
+			e => e instanceof Response ?
+				p.respond( e ) :
+				p.respond( new Response( e.statusCode || 500, e.data || e.stack || e.message || e ) )
 		);
 };
