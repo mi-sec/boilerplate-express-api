@@ -1,5 +1,5 @@
 /** ****************************************************************************************************
- * File: home.js
+ * @file: home.js
  * Project: boilerplate-express-api
  * @author Nick Soggin <iSkore@users.noreply.github.com> on 06-Nov-2017
  *******************************************************************************************************/
@@ -9,6 +9,12 @@ const
 	gonfig   = require( 'gonfig' ),
 	Response = require( 'http-response-class' );
 
+/**
+ *
+ * @param req
+ * @param res
+ * @return {Promise<{name: *, version: *} | never>}
+ */
 module.exports = ( req, res ) => {
 	const p = res.locals;
 	

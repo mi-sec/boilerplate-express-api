@@ -6,6 +6,7 @@
 	"scripts": {
 		"debug": "DEBUG=true npm start",
 		"dev": "nodemon ./index.js",
+		"docs": "jsdoc -c jsdocs.js -r",
 		"lint": "eslint .",
 		"start": "node index.js",
 		"test": "mocha"

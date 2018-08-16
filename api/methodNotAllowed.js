@@ -1,5 +1,5 @@
 /** ****************************************************************************************************
- * File: methodNotAllowed.js
+ * @file: methodNotAllowed.js
  * Project: boilerplate-express-api
  * @author Nick Soggin <iSkore@users.noreply.github.com> on 01-Nov-2017
  *******************************************************************************************************/
