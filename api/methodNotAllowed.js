@@ -1,37 +1,21 @@
 /** ****************************************************************************************************
- * File: methodNotSupported.js
+ * @file: methodNotAllowed.js
  * Project: boilerplate-express-api
  * @author Nick Soggin <iSkore@users.noreply.github.com> on 01-Nov-2017
  *******************************************************************************************************/
 'use strict';
-// @formatter:off
 
 const
-    Response = require( 'http-response-class' ),
-    { api }  = require( '../config' );
+	Response = require( 'http-response-class' );
 
-module.exports = ( req, p ) => {
-    return Promise.resolve()
-        .then(
-            () => {
-                const
-                    methods = Object.keys( api ).reduce(
-                        ( r, i ) => {
-                            if( api[ i ].route === req.path ) {
-                                r.push( api[ i ].method + ' ' + api[ i ].route );
-                            }
-                            return r;
-                        }, []
-                    );
-
-                // DO NOT DELETE: Compliance requirement: RFC2616 10.4.7
-                p.header.Allow = methods.join( ', ' );
-                p.header[ 'Cache-Control' ] = 'max-age=600';
-
-                p.respond( new Response( 405, `Method: ${req.method} on ${req.path} not allowed` ) );
-            }
-        )
-        .catch(
-            e => p.error( new Response( 501, e ) )
-        );
+module.exports = ( req, res ) => {
+	const p = res.locals;
+	
+	return Promise.resolve( `Method: ${ req.method } on ${ req.path } not allowed` )
+		.then( d => p.respond( new Response( 405, d ) ) )
+		.catch(
+			e => e instanceof Response ?
+				p.respond( e ) :
+				p.respond( new Response( e.statusCode || 500, e.data || e.stack || e.message || e ) )
+		);
 };

@@ -1,36 +1,23 @@
 /** ****************************************************************************************************
- * File: kill.js
+ * @file: kill.js
  * Project: boilerplate-express-api
  * @author Nick Soggin <iSkore@users.noreply.github.com> on 31-Oct-2017
  *******************************************************************************************************/
 'use strict';
-// @formatter:off
 
 const
-    Response = require( 'http-response-class' ),
-    { cyan } = require( 'ansi-styles' ),
-    Shutdown = require( '../lib/Shutdown' );
+	server   = require( '../server' ),
+	Response = require( 'http-response-class' );
 
-module.exports = ( req, p ) => {
-    return Promise.resolve()
-        .then(
-            () => p.respond( new Response( 200, 'Server closed' ) )
-        )
-        .then(
-            () => {
-                console.log( cyan.open + 'commencing graceful exit...' + cyan.close );
-                return new Promise(
-                    res => setTimeout(
-                        () => {
-                            Shutdown( 0 );
-                            res();
-                        },
-                        1000
-                    )
-                );
-            }
-        )
-        .catch(
-            e => p.error( new Response( 500, e.stackTrace || e.message ) )
-        );
+module.exports = ( req, res ) => {
+	const p = res.locals;
+	
+	return Promise.resolve()
+		.then( () => res.respond( new Response( 200, 'server terminated' ) ) )
+		.then( () => server.shutdown( 0 ) )
+		.catch(
+			e => e instanceof Response ?
+				p.respond( e ) :
+				p.respond( new Response( e.statusCode || 500, e.data || e.stack || e.message || e ) )
+		);
 };

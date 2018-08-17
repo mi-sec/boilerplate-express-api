@@ -1,43 +1,46 @@
 {
-    "name": "boilerplate-express-api",
-    "version": "0.0.0",
-    "description": "Boilerplate ExpressJS API",
-    "main": "index.js",
-    "scripts": {
-        "test": "mocha",
-        "dev": "nodemon ./index.js",
-        "start": "node process.js",
-        "reload": "pm2 reload boilerplate-express-api",
-        "restart": "pm2 restart boilerplate-express-api",
-        "stop": "pm2 stop boilerplate-express-api",
-        "delete": "pm2 delete boilerplate-express-api",
-        "prebuild": "~/nodec -v",
-        "build": "~/nodec --tmpdir=../.tmp -o api.app ./process.js",
-        "mongo": "mkdir -p $(pwd)/data/db/ && mongod --dbpath $(pwd)/data/db/"
-    },
-    "keywords": [
-        "express",
-        "api",
-        "boilerplate"
-    ],
-    "author": "Nick Soggin",
-    "repository": "https://github.com/Parellin-Technologies-LLC/boilerplate-express-api.git",
-    "license": "MIT",
-    "dependencies": {
-        "ansi-styles": "^3.2.0",
-        "body-parser": "^1.18.2",
-        "compression": "^1.7.1",
-        "express": "^4.16.2",
-        "http-response-class": "^1.1.1",
-        "jsonwebtoken": "^8.1.0",
-        "method-override": "^2.3.10",
-        "mongodb": "^2.2.33",
-        "monk": "^6.0.5",
-        "pm2": "^2.7.2",
-        "redirect-https": "^1.1.4",
-        "uuid": "^3.1.0"
-    },
-    "devDependencies": {
-        "nodemon": "^1.12.1"
-    }
+	"name": "boilerplate-express-api",
+	"version": "0.0.0",
+	"description": "Boilerplate ExpressJS API",
+	"main": "index.js",
+	"scripts": {
+		"debug": "DEBUG=true npm start",
+		"dev": "nodemon ./index.js",
+		"docs": "jsdoc -c jsdocs.js -r",
+		"lint": "eslint .",
+		"start": "node index.js",
+		"test": "mocha"
+	},
+	"keywords": [
+		"express",
+		"api",
+		"boilerplate"
+	],
+	"author": "Parellin Technologies LLC",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Parellin-Technologies-LLC/boilerplate-express-api.git"
+	},
+	"license": "MIT",
+	"dependencies": {
+		"@parellin/lightmap": "0.0.9",
+		"argon2": "0.19.3",
+		"body-parser": "1.18.3",
+		"cors": "2.8.4",
+		"express": "4.16.3",
+		"fs-extra": "7.0.0",
+		"gonfig": "1.0.8",
+		"http-response-class": "1.2.2",
+		"on-finished": "2.3.0",
+		"passport": "0.4.0",
+		"superstruct": "0.5.4",
+		"uuid": "3.3.2"
+	},
+	"devDependencies": {
+		"chai": "4.1.2",
+		"chai-as-promised": "7.1.1",
+		"chai-http": "4.0.0",
+		"eslint": "5.3.0",
+		"mocha": "5.2.0"
+	}
 }
