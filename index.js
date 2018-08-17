@@ -13,7 +13,7 @@ gonfig
 	.setLogLevel( gonfig.LEVEL.BASIC )
 	.setEnvironment( process.env.NODE_ENV || gonfig.ENV.DEVELOPMENT )
 	.load( 'server', 'config/server.json' )
-	.load( 'api', 'config/api.json' )
+	.load( 'api', 'config/api.js' )
 	.refresh();
 
 // set authentication type

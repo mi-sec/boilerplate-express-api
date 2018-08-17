@@ -43,8 +43,10 @@ class Server
 	 */
 	hookRoute( item )
 	{
-		item.exec = require( resolve( item.exec ) );
-		
+		if( typeof item.exec !== 'function' ) {
+			throw new Error( `Config Error - ${ item.method }:${ item.route } execution must be a function` );
+		}
+
 		// hook route to express
 		this.express[ item.method.toLowerCase() ](
 			item.route,
