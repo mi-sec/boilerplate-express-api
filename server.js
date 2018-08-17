@@ -119,7 +119,7 @@ class Server
 		
 		this.server.listen(
 			gonfig.get( 'server' ).port,
-			() => debug(
+			() => gonfig.log === gonfig.LEVEL.NONE || console.log(
 				`${ gonfig.get( 'name' ) } ` +
 				`v${ gonfig.get( 'version' ) } ` +
 				`running on ${ gonfig.get( 'lanip' ) }:${ gonfig.get( 'server' ).port }\n` +
