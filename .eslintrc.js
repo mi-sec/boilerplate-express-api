@@ -4,13 +4,6 @@ module.exports = {
 		node: true
 	},
 	extends: 'eslint:recommended',
-	parserOptions: {
-		ecmaVersion: 2017,
-		ecmaFeatures: {
-			experimentalObjectRestSpread: true
-		},
-		sourceType: 'module'
-	},
 	globals: {
 		before: true,
 		after: true,
@@ -21,7 +14,16 @@ module.exports = {
 		console: true,
 		Blob: true
 	},
+	parserOptions: {
+		ecmaVersion: 2017,
+		ecmaFeatures: {
+			experimentalObjectRestSpread: true
+		},
+		sourceType: 'module'
+	},
+	plugins: [ 'jsdoc' ],
 	rules: {
+		'jsdoc/check-param-names': 1,
 		indent: [
 			2,
 			'tab',

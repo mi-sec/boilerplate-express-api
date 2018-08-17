@@ -5,6 +5,12 @@
  *******************************************************************************************************/
 'use strict';
 
+/**
+ * @module module:middleware
+ * @global
+ * @description API middleware
+ */
+
 module.exports = {
 	plugins: [
 		'plugins/markdown'
@@ -16,7 +22,8 @@ module.exports = {
 			'./'
 		],
 		exclude: [
-			'node_modules'
+			'node_modules/',
+			'docs/'
 		],
 		includePattern: '.+\\.js(doc|x)?$',
 		excludePattern: '(^|\\/|\\\\)_'
@@ -30,12 +37,15 @@ module.exports = {
 		]
 	},
 	templates: {
+		referenceTitle: 'beapi',
 		cleverLinks: true,
-		monospaceLinks: true
+		monospaceLinks: true,
+		disableSort: false
 	},
 	opts: {
 		encoding: 'utf8',
 		destination: 'docs/',
-		recurse: true
+		recurse: true,
+		template: './node_modules/jsdoc-template'
 	}
 };

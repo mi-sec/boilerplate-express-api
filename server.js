@@ -36,6 +36,8 @@ class Server
 	
 	/**
 	 * hookRoute
+	 * @description
+	 * hook endpoints onto the express app
 	 * @param {object} item - item from the api config
 	 * @returns {*} - returns item with required execution function
 	 */
@@ -130,6 +132,8 @@ class Server
 	
 	/**
 	 * shutdown
+	 * @description
+	 * handle any final tasks before the program shuts down
 	 * @param {number} code - exit code
 	 */
 	shutdown( code = 0 )

@@ -35,11 +35,6 @@
 		"exec": "./api/version"
 	},
 	{
-		"route": "/logs",
-		"method": "GET",
-		"exec": "./api/logs/getLogs"
-	},
-	{
 		"route": "/user/signup",
 		"method": "POST",
 		"exec": "./api/user/signup"

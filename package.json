@@ -6,7 +6,7 @@
 	"scripts": {
 		"debug": "DEBUG=true npm start",
 		"dev": "nodemon ./index.js",
-		"docs": "jsdoc -c jsdocs.js -r",
+		"docs": "rm -rf ./docs/* && jsdoc -c jsdocs.js -r",
 		"lint": "eslint .",
 		"start": "node index.js",
 		"test": "mocha"
@@ -41,6 +41,8 @@
 		"chai-as-promised": "7.1.1",
 		"chai-http": "4.0.0",
 		"eslint": "5.3.0",
+		"eslint-plugin-jsdoc": "3.7.1",
+		"jsdoc-template": "file:../jsdoc-template",
 		"mocha": "5.2.0"
 	}
 }
