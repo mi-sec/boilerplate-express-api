@@ -44,7 +44,22 @@ module.exports = [
 	{
 		route: '/user/signup',
 		method: 'POST',
-		exec: require( '../api/user/signup' )
+		exec: require( '../api/user/signUp' )
+	},
+	{
+		route: '/user/login',
+		method: 'POST',
+		exec: require( '../api/user/login' )
+	},
+	{
+		route: '/user/success',
+		method: 'GET',
+		exec: require( '../api/user/success' )
+	},
+	{
+		route: '/user/error',
+		method: 'GET',
+		exec: require( '../api/user/error' )
 	},
 	{
 		route: '*',

@@ -6,16 +6,20 @@
 'use strict';
 
 const
-	gonfig = require( 'gonfig' ),
-	lanIp  = require( './lib/lanIp' ),
+	gonfig  = require( 'gonfig' ),
+	argon2  = require( 'argon2' ),
+	UUIDv4  = require( 'uuid/v4' ),
+	RSAKeys = require( './lib/RSAKeys' ),
+	lanIp   = require( './lib/lanIp' ),
 	{
+		readJson,
 		outputJson,
 		pathExists
-	}      = require( 'fs-extra' ),
+	}       = require( 'fs-extra' ),
 	{
 		resolve,
 		join
-	}      = require( 'path' );
+	}       = require( 'path' );
 
 const
 	logpath   = resolve( './logs' ),
@@ -25,26 +29,44 @@ const
 module.exports = async () => {
 	// get the local ip
 	await gonfig.set( 'lanip', lanIp );
-
+	
 	// set log path
 	gonfig.set( 'logpath', logpath );
-
+	
 	// set data path
 	gonfig.set( 'datapath', datapath );
-
+	
 	// set users json for local authentication
 	gonfig.set( 'userspath', userspath );
-
+	
 	try {
 		// check if there's a user config file, make one if there isn't
-		if( !await pathExists( userspath ) ) {
-			await outputJson( userspath, [] );
+		const
+			localUsersExists = await pathExists( userspath ),
+			password         = await argon2.hash( 'password', { type: argon2.argon2id } ),
+			username         = 'admin',
+			sub              = UUIDv4();
+		
+		if( localUsersExists ) {
+			const
+				localUsers = await readJson( userspath ),
+				users      = new Map( localUsers );
+			
+			if( !users.has( username ) ) {
+				await outputJson( userspath, [ [ username, { sub, username, password } ] ] );
+			}
+		} else {
+			await outputJson( userspath, [ [ username, { sub, username, password } ] ] );
 		}
-
+		
 		gonfig
 			.load( 'users', userspath )
+			.load( 'server', 'config/server.json' )
+			.load( 'api', 'config/api.js' )
 			.refresh();
+		
+		require( './lib/auth/initAuthentication' )();
 	} catch( e ) {
-		console.error( e );
+		throw new Error( e );
 	}
 };

@@ -29,10 +29,13 @@
 		"cors": "2.8.4",
 		"express": "4.16.3",
 		"fs-extra": "7.0.0",
-		"gonfig": "1.0.8",
+		"gonfig": "1.0.9",
 		"http-response-class": "1.2.2",
+		"jsonwebtoken": "8.3.0",
 		"on-finished": "2.3.0",
 		"passport": "0.4.0",
+		"passport-jwt": "4.0.0",
+		"passport-local": "1.0.0",
 		"superstruct": "0.5.4",
 		"uuid": "3.3.2"
 	},
@@ -42,7 +45,7 @@
 		"chai-http": "4.0.0",
 		"eslint": "5.3.0",
 		"eslint-plugin-jsdoc": "3.7.1",
-		"jsdoc-template": "file:../jsdoc-template",
+		"jsdoc-template": "git+https://github.com/Parellin-Technologies-LLC/jsdoc-template.git",
 		"mocha": "5.2.0"
 	}
 }

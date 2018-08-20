@@ -23,6 +23,7 @@ Additional commands:
 - `npm run reload` - Reloads code changes
 - `npm run restart` - Restarts application and session data
 - `npm run delete` - Deletes PM2 application
+<<<<<<< Updated upstream
 
 
 Create SSL Certs:
@@ -37,3 +38,5 @@ openssl dhparam -outform PEM -out dhparam.pem 2048
 
 openssl pkcs12 -inkey server.key -in server.crt -export -out certificate.p12
 ```
+=======
+>>>>>>> Stashed changes

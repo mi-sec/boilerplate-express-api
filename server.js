@@ -19,7 +19,6 @@ const
 	packet        = require( './lib/middleware/packet' ),
 	inspection    = require( './lib/middleware/inspection' ),
 	captureParams = require( './lib/middleware/captureParams' ),
-	{ resolve }   = require( 'path' ),
 	debug         = require( './lib/debug' );
 
 let isClosed = false;
@@ -46,7 +45,7 @@ class Server
 		if( typeof item.exec !== 'function' ) {
 			throw new Error( `Config Error - ${ item.method }:${ item.route } execution must be a function` );
 		}
-
+		
 		// hook route to express
 		this.express[ item.method.toLowerCase() ](
 			item.route,
@@ -75,6 +74,9 @@ class Server
 		this.express.use( cors() );
 		
 		this.express.use( passport.initialize() );
+		// this.express.use( passport.session() );
+		
+		// passport.use( authentication() );
 		
 		this.express.use( packet() );
 		this.express.use( inspection() );

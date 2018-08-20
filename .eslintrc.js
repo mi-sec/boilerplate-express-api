@@ -5,6 +5,7 @@ module.exports = {
 	},
 	extends: 'eslint:recommended',
 	globals: {
+		arguments: true,
 		before: true,
 		after: true,
 		afterEach: true,

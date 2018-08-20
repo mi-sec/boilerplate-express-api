@@ -11,27 +11,17 @@ const
 // setup environment config
 gonfig
 	.setLogLevel( gonfig.LEVEL.BASIC )
-	.setEnvironment( process.env.NODE_ENV || gonfig.ENV.DEVELOPMENT )
-	.load( 'server', 'config/server.json' )
-	.load( 'api', 'config/api.js' )
-	.refresh();
-
-// set authentication type
-gonfig.set( 'authentication', 'LocalAuthentication' );
+	.setEnvironment( process.env.NODE_ENV || gonfig.ENV.DEVELOPMENT );
 
 // set log format
 gonfig.set( 'logformat', 'standard' );
 
-const
-	initEnv = require( './init' ),
-	server  = require( './server' );
-
 ( async () => {
 	// do any initialization steps here
-	await initEnv();
+	await require( './init' )();
 	
 	// start the server
-	server
+	await require( './server' )
 		.initialize()
 		.start();
 } )();
