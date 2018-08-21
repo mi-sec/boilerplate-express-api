@@ -52,6 +52,11 @@ module.exports = [
 		exec: require( '../api/user/login' )
 	},
 	{
+		route: '/user/valid',
+		method: 'GET',
+		exec: require( '../api/user/valid' )
+	},
+	{
 		route: '/user/success',
 		method: 'GET',
 		exec: require( '../api/user/success' )

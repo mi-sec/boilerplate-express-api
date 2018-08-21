@@ -11,7 +11,7 @@ const
 	passport = require( 'passport' ),
 	RSAKeys  = require( '../../lib/RSAKeys' ),
 	{
-		User,
+		UserLogin,
 		validate
 	}        = require( '../../lib/structs' );
 
@@ -19,7 +19,7 @@ module.exports = async ( req, res ) => {
 	const p = res.locals;
 	
 	try {
-		const user = await validate( User, p.data );
+		const user = await validate( UserLogin, p.data );
 		
 		console.log( user );
 		
@@ -38,7 +38,7 @@ module.exports = async ( req, res ) => {
 						expiresIn: 3600000
 					}
 				);
-				
+
 				p.respond( new Response( 200, user ) );
 			} else {
 				p.error( new Response( 401, 'incorrect username or password' ) );
@@ -47,10 +47,4 @@ module.exports = async ( req, res ) => {
 	} catch( e ) {
 		p.error( e );
 	}
-
-// return validate( User, p.data )
-// 	.then( d => ( console.log( d ), d ) )
-// 	.then( d => res.redirect( '/success?username=' + req.user.username ) )
-// 	.then( d => p.respond( d ) )
-// 	.catch( e => p.error( e ) );
 };
