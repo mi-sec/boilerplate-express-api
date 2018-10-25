@@ -6,32 +6,20 @@
 'use strict';
 
 const
-	gonfig            = require( 'gonfig' ),
-	lanIp             = require( './lib/lanIp' ),
-	{ outputJson }    = require( 'fs-extra' ),
-	{ resolve, join } = require( 'path' );
+	gonfig         = require( 'gonfig' ),
+	lanIp          = require( './lib/lanIp' ),
+	{ ensureFile } = require( 'fs-extra' ),
+	{ resolve }    = require( 'path' );
 
 const
-	logpath  = resolve( './logs' ),
-	datapath = resolve( './data' ),
-	users    = join( datapath, 'users.json' );
+	logpath = resolve( './logs' );
 
 module.exports = async () => {
 	// get the local ip
-	await gonfig.set( 'lanip', lanIp );
+	gonfig.set( 'lanip', lanIp );
 	
 	// set log path
 	gonfig.set( 'logpath', logpath );
 	
-	// set data path
-	gonfig.set( 'datapath', datapath );
-	
-	// set users json for local authentication
-	gonfig.set( 'users', users );
-	
-	try {
-		await outputJson( users, [] );
-	} catch( e ) {
-		console.error( e );
-	}
+	await ensureFile( logpath );
 };

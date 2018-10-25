@@ -24,15 +24,16 @@
 	"license": "MIT",
 	"dependencies": {
 		"@parellin/lightmap": "0.0.9",
-		"argon2": "0.19.3",
 		"body-parser": "1.18.3",
 		"cors": "2.8.4",
 		"express": "4.16.3",
+		"express-pino-logger": "4.0.0",
 		"fs-extra": "7.0.0",
 		"gonfig": "1.0.8",
+		"helmet": "3.14.0",
 		"http-response-class": "1.2.2",
 		"on-finished": "2.3.0",
-		"passport": "0.4.0",
+		"pino": "5.8.0",
 		"superstruct": "0.5.4",
 		"uuid": "3.3.2"
 	},

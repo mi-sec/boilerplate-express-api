@@ -13,9 +13,9 @@ const
 	gonfig        = require( 'gonfig' ),
 	http          = require( 'http' ),
 	express       = require( 'express' ),
+	helmet        = require( 'helmet' ),
 	cors          = require( 'cors' ),
 	bodyParser    = require( 'body-parser' ),
-	passport      = require( 'passport' ),
 	packet        = require( './lib/middleware/packet' ),
 	inspection    = require( './lib/middleware/inspection' ),
 	captureParams = require( './lib/middleware/captureParams' ),
@@ -66,12 +66,11 @@ class Server
 		
 		this.express.disable( 'x-powered-by' );
 		
+		this.express.use( helmet() );
+		
 		this.express.use( bodyParser.raw( { limit: '5gb' } ) );
 		this.express.use( bodyParser.json() );
 		this.express.use( cors() );
-		
-		this.express.use( passport.initialize() );
-		
 		this.express.use( packet() );
 		this.express.use( inspection() );
 		
@@ -94,14 +93,16 @@ class Server
 		this.expressInitialize();
 		
 		process
-			.on( 'uncaughtException', err => debug( err ) )
-			.on( 'unhandledRejection', err => debug( err ) )
+			.on( 'uncaughtException', err => console.log( 'uncaughtException', err ) )
 			.on( 'SIGINT', () => {
-				debug( 'Received SIGINT, graceful shutdown...' );
+				console.log( 'SIGINT' );
 				this.shutdown( 0 );
 			} )
+			.on( 'SIGQUIT', () => console.log( 'SIGQUIT' ) )
+			.on( 'SIGTERM', () => console.log( 'SIGTERM' ) )
+			.on( 'beforeExit', () => console.log( 'beforeExit' ) )
 			.on( 'exit', code => {
-				debug( `Received exit with code ${ code }, graceful shutdown...` );
+				console.log( `Exit ${ code }` );
 				this.shutdown( code );
 			} );
 		
@@ -119,7 +120,7 @@ class Server
 		
 		this.server.listen(
 			gonfig.get( 'server' ).port,
-			() => gonfig.log === gonfig.LEVEL.NONE || console.log(
+			() => console.log(
 				`${ gonfig.get( 'name' ) } ` +
 				`v${ gonfig.get( 'version' ) } ` +
 				`running on ${ gonfig.get( 'lanip' ) }:${ gonfig.get( 'server' ).port }\n` +

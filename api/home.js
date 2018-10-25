@@ -11,8 +11,8 @@ const
 
 /**
  *
- * @param req
- * @param res
+ * @param {http.Request} req - HTTP Request
+ * @param {http.Response} res - HTTP Response
  * @return {Promise<{name: *, version: *} | never>}
  */
 module.exports = ( req, res ) => {
