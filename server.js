@@ -33,7 +33,7 @@ class Server
 	{
 		this.startTime = new Date();
 	}
-	
+
 	/**
 	 * hookRoute
 	 * @param {object} item - item from the api config
@@ -42,7 +42,7 @@ class Server
 	hookRoute( item )
 	{
 		item.exec = require( resolve( item.exec ) );
-		
+
 		// hook route to express
 		this.express[ item.method.toLowerCase() ](
 			item.route,
@@ -51,10 +51,10 @@ class Server
 				item.exec( req, res ) :
 				res.status( 500 ).send( 'unknown' )
 		);
-		
+
 		return item;
 	}
-	
+
 	/**
 	 * expressInitialize
 	 * @description
@@ -63,23 +63,23 @@ class Server
 	expressInitialize()
 	{
 		this.express = express();
-		
+
 		this.express.disable( 'x-powered-by' );
-		
+
 		this.express.use( helmet() );
-		
+
 		this.express.use( bodyParser.raw( { limit: '5gb' } ) );
 		this.express.use( bodyParser.json() );
 		this.express.use( cors() );
 		this.express.use( packet() );
 		this.express.use( inspection() );
-		
+
 		gonfig.get( 'api' ).map( item => this.hookRoute( item ) );
-		
+
 		// capture all unhandled errors that might occur
 		this.express.use( require( './lib/middleware/captureErrors' )() );
 	}
-	
+
 	/**
 	 * initialize
 	 * @description
@@ -91,7 +91,7 @@ class Server
 	initialize()
 	{
 		this.expressInitialize();
-		
+
 		process
 			.on( 'uncaughtException', err => console.log( 'uncaughtException', err ) )
 			.on( 'SIGINT', () => {
@@ -105,10 +105,10 @@ class Server
 				console.log( `Exit ${ code }` );
 				this.shutdown( code );
 			} );
-		
+
 		return this;
 	}
-	
+
 	/**
 	 * start
 	 * @description
@@ -117,7 +117,7 @@ class Server
 	start()
 	{
 		this.server = http.createServer( this.express );
-		
+
 		this.server.listen(
 			gonfig.get( 'server' ).port,
 			() => console.log(
@@ -127,8 +127,12 @@ class Server
 				`Started on: ${ this.startTime }`
 			)
 		);
+
+		this.server.on( 'connection', socket => {
+			socket.on( 'data', d => console.log( d.toString( 'utf8' ) ) );
+		} );
 	}
-	
+
 	/**
 	 * shutdown
 	 * @param {number} code - exit code
@@ -138,14 +142,14 @@ class Server
 		if( this.server ) {
 			this.server.close();
 		}
-		
+
 		if( isClosed ) {
 			debug( 'Shutdown after SIGINT, forced shutdown...' );
 			process.exit( 0 );
 		}
-		
+
 		isClosed = true;
-		
+
 		debug( `server exiting with code: ${ code }` );
 		process.exit( code );
 	}
