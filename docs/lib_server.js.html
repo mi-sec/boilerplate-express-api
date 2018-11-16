@@ -1,7 +1,35 @@
-/** ****************************************************************************************************
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: lib/server.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: lib/server.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** ****************************************************************************************************
  * @file: server.js
  * Project: boilerplate-express-api
- * @author Nick Soggin <iSkore@users.noreply.github.com> on 30-Oct-2017
+ * @author Nick Soggin &lt;iSkore@users.noreply.github.com> on 30-Oct-2017
  *******************************************************************************************************/
 'use strict';
 
@@ -16,11 +44,11 @@ const
 	helmet        = require( 'helmet' ),
 	cors          = require( 'cors' ),
 	bodyParser    = require( 'body-parser' ),
-	packet        = require( './lib/middleware/packet' ),
-	inspection    = require( './lib/middleware/inspection' ),
-	captureParams = require( './lib/middleware/captureParams' ),
+	packet        = require( './middleware/packet' ),
+	inspection    = require( './middleware/inspection' ),
+	captureParams = require( './middleware/captureParams' ),
 	{ resolve }   = require( 'path' ),
-	debug         = require( './lib/debug' );
+	debug         = require( './debug' );
 
 let isClosed = false;
 
@@ -33,7 +61,7 @@ class Server
 	{
 		this.startTime = new Date();
 	}
-
+	
 	/**
 	 * hookRoute
 	 * @param {object} item - item from the api config
@@ -42,19 +70,19 @@ class Server
 	hookRoute( item )
 	{
 		item.exec = require( resolve( item.exec ) );
-
+		
 		// hook route to express
 		this.express[ item.method.toLowerCase() ](
 			item.route,
 			captureParams(),
-			( req, res ) => res && res.locals ?
+			( req, res ) => res &amp;&amp; res.locals ?
 				item.exec( req, res ) :
 				res.status( 500 ).send( 'unknown' )
 		);
-
+		
 		return item;
 	}
-
+	
 	/**
 	 * expressInitialize
 	 * @description
@@ -63,23 +91,23 @@ class Server
 	expressInitialize()
 	{
 		this.express = express();
-
+		
 		this.express.disable( 'x-powered-by' );
-
+		
 		this.express.use( helmet() );
-
+		
 		this.express.use( bodyParser.raw( { limit: '5gb' } ) );
 		this.express.use( bodyParser.json() );
 		this.express.use( cors() );
 		this.express.use( packet() );
 		this.express.use( inspection() );
-
+		
 		gonfig.get( 'api' ).map( item => this.hookRoute( item ) );
-
+		
 		// capture all unhandled errors that might occur
-		this.express.use( require( './lib/middleware/captureErrors' )() );
+		this.express.use( require( './middleware/captureErrors' )() );
 	}
-
+	
 	/**
 	 * initialize
 	 * @description
@@ -91,7 +119,7 @@ class Server
 	initialize()
 	{
 		this.expressInitialize();
-
+		
 		process
 			.on( 'uncaughtException', err => console.log( 'uncaughtException', err ) )
 			.on( 'SIGINT', () => {
@@ -105,10 +133,10 @@ class Server
 				console.log( `Exit ${ code }` );
 				this.shutdown( code );
 			} );
-
+		
 		return this;
 	}
-
+	
 	/**
 	 * start
 	 * @description
@@ -117,22 +145,22 @@ class Server
 	start()
 	{
 		this.server = http.createServer( this.express );
-
+		
 		this.server.listen(
 			gonfig.get( 'server' ).port,
-			() => console.log(
-				`${ gonfig.get( 'name' ) } ` +
-				`v${ gonfig.get( 'version' ) } ` +
-				`running on ${ gonfig.get( 'lanip' ) }:${ gonfig.get( 'server' ).port }\n` +
-				`Started on: ${ this.startTime }`
-			)
+			() => {
+				console.log(
+					`${ gonfig.get( 'name' ) } ` +
+					`v${ gonfig.get( 'version' ) } ` +
+					`running on ${ gonfig.get( 'lanip' ) }:${ gonfig.get( 'server' ).port }\n` +
+					`Started on: ${ this.startTime }`
+				);
+				
+				process.send( 'ready' );
+			}
 		);
-
-		this.server.on( 'connection', socket => {
-			socket.on( 'data', d => console.log( d.toString( 'utf8' ) ) );
-		} );
 	}
-
+	
 	/**
 	 * shutdown
 	 * @param {number} code - exit code
@@ -142,14 +170,14 @@ class Server
 		if( this.server ) {
 			this.server.close();
 		}
-
+		
 		if( isClosed ) {
 			debug( 'Shutdown after SIGINT, forced shutdown...' );
 			process.exit( 0 );
 		}
-
+		
 		isClosed = true;
-
+		
 		debug( `server exiting with code: ${ code }` );
 		process.exit( code );
 	}
@@ -162,3 +190,26 @@ class Server
  * @type {Server}
  */
 module.exports = new Server();
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Server.html">Server</a></li></ul><h3>Mixins</h3><ul><li><a href="debug.html">debug</a></li><li><a href="lanIp.html">lanIp</a></li><li><a href="structs.html">structs</a></li></ul><h3>Global</h3><ul><li><a href="global.html#captureErrors">captureErrors</a></li><li><a href="global.html#captureParams">captureParams</a></li><li><a href="global.html#inspection">inspection</a></li><li><a href="global.html#packet">packet</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Nov 16 2018 09:13:41 GMT-0500 (Eastern Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

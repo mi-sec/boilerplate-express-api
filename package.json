@@ -9,6 +9,7 @@
 		"docs": "jsdoc -c jsdocs.js -r",
 		"lint": "eslint .",
 		"start": "node index.js",
+		"start:prod": "pm2 start ecosystem.config.js --env production",
 		"test": "mocha"
 	},
 	"keywords": [
@@ -24,6 +25,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"@parellin/lightmap": "0.0.9",
+		"@pm2/io": "2.4.5",
 		"body-parser": "1.18.3",
 		"cors": "2.8.4",
 		"express": "4.16.3",
@@ -34,6 +36,7 @@
 		"http-response-class": "1.2.2",
 		"on-finished": "2.3.0",
 		"pino": "5.8.0",
+		"pm2": "3.2.2",
 		"superstruct": "0.5.4",
 		"uuid": "3.3.2"
 	},

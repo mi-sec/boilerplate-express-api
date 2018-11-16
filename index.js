@@ -16,15 +16,9 @@ gonfig
 	.load( 'api', 'config/api.json' )
 	.refresh();
 
-// set authentication type
-gonfig.set( 'authentication', 'LocalAuthentication' );
-
-// set log format
-gonfig.set( 'logformat', 'standard' );
-
 const
-	initEnv = require( './init' ),
-	server  = require( './server' );
+	initEnv = require( './lib/init' ),
+	server  = require( './lib/server' );
 
 ( async () => {
 	// do any initialization steps here

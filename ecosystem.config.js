@@ -13,10 +13,11 @@ module.exports = {
 			name,
 			script,
 			exec_mode: 'cluster',
-			instances: 0,
+			instances: 'max',
 			max_memory_restart: '4G',
 			restartDelay: 5000,
 			node_args: '--no-warnings',
+			log_type: 'json',
 			error_file: 'logs/err.log',
 			out_file: 'logs/out.log',
 			env: {

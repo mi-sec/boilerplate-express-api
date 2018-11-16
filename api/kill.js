@@ -6,7 +6,7 @@
 'use strict';
 
 const
-	server   = require( '../server' ),
+	server   = require( '../lib/server' ),
 	Response = require( 'http-response-class' );
 
 module.exports = ( req, res ) => {
