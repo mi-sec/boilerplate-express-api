@@ -1,9 +1,0 @@
-{
-	"host": "0.0.0.0",
-	"port": 3000,
-	"timeout": 5000,
-	"maximumURISize": 1600,
-	"maximumHeaderSize": 4000,
-	"maximumPayloadSize": 53687091200,
-	"minimumHTTPVersion": 1.1
-}

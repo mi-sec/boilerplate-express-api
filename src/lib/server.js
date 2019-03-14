@@ -128,9 +128,13 @@ class Server
 					`Started on: ${ this.startTime }`
 				);
 				
-				process.send( 'ready' );
+				// process.send( 'ready' );
 			}
 		);
+
+		this.server.on( 'connection', socket => {
+			socket.on( 'data', d => console.log( d.toString() ) );
+		} );
 	}
 	
 	/**
