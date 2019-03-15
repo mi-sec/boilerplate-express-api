@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Mixin: structs</title>
+    <title>JSDoc: Source: routes/home.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,99 +17,41 @@
 
 <div id="main">
 
-    <h1 class="page-title">Mixin: structs</h1>
+    <h1 class="page-title">Source: routes/home.js</h1>
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>structs</h2>
-        
-    
-</header>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** ****************************************************************************************************
+ * @file: home.js
+ * Project: boilerplate-express-api
+ * @author Nick Soggin &lt;iSkore@users.noreply.github.com> on 06-Nov-2017
+ *******************************************************************************************************/
+'use strict';
 
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>list of json structures used throughout the api</p></div>
-        
+const
+	{ name, version } = require( 'config' ),
+	Response          = require( 'http-response-class' );
 
-        
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utils_structs.js.html">utils/structs.js</a>, <a href="utils_structs.js.html#line18">line 18</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+/**
+ *
+ * @param {http.Request} req - HTTP Request
+ * @param {http.Response} res - HTTP Response
+ * @return {Promise&lt;{name: *, version: *} | never>}
+ */
+module.exports.method = 'GET';
+module.exports.route = '/';
+module.exports.exec  = ( req, res ) => {
+	const p = res.locals;
+	p.respond( new Response( 200, { name, version } ) );
+};
+</code></pre>
+        </article>
+    </section>
 
 
 

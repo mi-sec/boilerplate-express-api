@@ -8,17 +8,14 @@
 const
 	Response = require( 'http-response-class' );
 
-module.exports = ( req, res ) => {
+module.exports.method = 'GET';
+module.exports.route  = '/timeout/:time';
+module.exports.exec   = async ( req, res ) => {
 	const p = res.locals;
 	
 	p.clearTimeout();
 	
-	return Promise.resolve( p.params.time * 1000 )
-		.then( d => new Promise( r => setTimeout( r, d ) ) )
-		.then( () => p.respond( new Response( 408, 'Request Timeout' ) ) )
-		.catch(
-			e => e instanceof Response ?
-				p.respond( e ) :
-				p.respond( new Response( e.statusCode || 500, e.data || e.stack || e.message || e ) )
-		);
+	await new Promise( r => setTimeout( r, p.params.time * 1000 ) );
+	
+	p.respond( new Response( 408, 'Request Timeout' ) );
 };

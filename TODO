@@ -1,4 +1,0 @@
-Configure logs
-
-`pm2 install pm2-logrotate`
-https://github.com/keymetrics/pm2-logrotate

@@ -2,13 +2,13 @@
 	"name": "boilerplate-express-api",
 	"version": "0.0.0",
 	"description": "Boilerplate ExpressJS API",
-	"main": "index.js",
+	"main": "build/entrypoint.js",
 	"scripts": {
-		"debug": "DEBUG=true npm start",
-		"dev": "nodemon ./index.js",
+		"build": "parcel build -d build -t node --detailed-report --no-cache --no-source-maps src/entrypoint.js",
+		"dev": "nodemon src/entrypoint.js",
 		"docs": "jsdoc -c jsdocs.js -r",
 		"lint": "eslint .",
-		"start": "node index.js",
+		"start": "node src/entrypoint.js",
 		"start:prod": "pm2 start ecosystem.config.js --env production",
 		"test": "mocha"
 	},
@@ -24,27 +24,21 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@parellin/lightmap": "0.0.9",
-		"@pm2/io": "2.4.5",
+		"@pm2/io": "4.1.2",
 		"body-parser": "1.18.3",
-		"cors": "2.8.4",
-		"express": "4.16.3",
+		"config": "3.0.1",
+		"express": "4.16.4",
 		"express-pino-logger": "4.0.0",
-		"fs-extra": "7.0.0",
-		"gonfig": "1.0.8",
-		"helmet": "3.14.0",
-		"http-response-class": "1.2.2",
-		"on-finished": "2.3.0",
-		"pino": "5.8.0",
-		"pm2": "3.2.2",
-		"superstruct": "0.5.4",
-		"uuid": "3.3.2"
+		"helmet": "3.16.0",
+		"http-response-class": "1.2.4",
+		"pino": "5.11.1"
 	},
 	"devDependencies": {
-		"chai": "4.1.2",
+		"chai": "4.2.0",
 		"chai-as-promised": "7.1.1",
-		"chai-http": "4.0.0",
-		"eslint": "5.3.0",
-		"mocha": "5.2.0"
+		"chai-http": "4.2.1",
+		"eslint": "5.15.2",
+		"mocha": "6.0.2",
+		"parcel": "1.12.2"
 	}
 }

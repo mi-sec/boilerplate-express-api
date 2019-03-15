@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Mixin: structs</title>
+    <title>JSDoc: Source: middleware/captureErrors.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,99 +17,69 @@
 
 <div id="main">
 
-    <h1 class="page-title">Mixin: structs</h1>
+    <h1 class="page-title">Source: middleware/captureErrors.js</h1>
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>structs</h2>
-        
-    
-</header>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** ****************************************************************************************************
+ * @file: captureErrors.js
+ * Project: boilerplate-express-api
+ * @author Nick Soggin &lt;iSkore@users.noreply.github.com> on 13-Aug-2018
+ *******************************************************************************************************/
+'use strict';
 
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>list of json structures used throughout the api</p></div>
-        
+const
+	Response = require( 'http-response-class' ),
+	UUIDv4   = require( 'uuid/v4' );
 
-        
+/**
+ * captureErrors
+ * @description
+ * capture any errors that may occur - should be last middleware function in the request cycle
+ * @param {Error|null} e - null unless an error occurs
+ * @param {http.Request} req - HTTP Request
+ * @param {http.Response} res - HTTP Response
+ * @param {function} next - next middleware function
+ */
+function captureErrors( e, req, res, next ) {
+	req.log.trace( '[middleware] captureErrors' );
+	
+	if( e ) {
+		const
+			resp = new Response( e.statusCode || 500, e.data || e.stack || e.message || e ),
+			data = JSON.stringify( resp.data );
+		
+		if( res.locals.respond ) {
+			res.locals.respond( resp );
+		} else {
+			res
+				.set( {
+					'Access-Control-Allow-Origin': '*',
+					'Access-Control-Max-Age': 1728000,
+					'Content-Type': 'application/json; charset=utf-8',
+					'Content-Length': data.length,
+					RequestID: UUIDv4()
+				} )
+				.status( resp.statusCode )
+				.send( data );
+		}
+	} else {
+		next();
+	}
+}
 
+module.exports = () => {
+	return captureErrors;
+};
 
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utils_structs.js.html">utils/structs.js</a>, <a href="utils_structs.js.html#line18">line 18</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+</code></pre>
+        </article>
+    </section>
 
 
 

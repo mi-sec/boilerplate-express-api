@@ -5,7 +5,9 @@
  *******************************************************************************************************/
 'use strict';
 
-const { name, main: script } = require( './package' );
+const
+	{ name, main: script } = require( './package' ),
+	development            = process.argv.includes( 'development' );
 
 module.exports = {
 	apps: [
@@ -13,16 +15,19 @@ module.exports = {
 			name,
 			script,
 			exec_mode: 'cluster',
-			instances: 'max',
-			max_memory_restart: '4G',
+			instances: development ? 1 : 'max',
+			autorestart: true,
 			restartDelay: 5000,
-			node_args: '--no-warnings',
-			log_type: 'json',
-			error_file: 'logs/err.log',
-			out_file: 'logs/out.log',
+			max_memory_restart: '1G',
+			node_args: [
+				'--no-warnings',
+				'--max_old_space_size=1024'
+			],
 			env: {
-				NODE_ENV: 'development',
-				DEBUG: true
+				NODE_ENV: 'development'
+			},
+			env_development: {
+				NODE_ENV: 'development'
 			},
 			env_production: {
 				NODE_ENV: 'production'

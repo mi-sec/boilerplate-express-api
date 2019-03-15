@@ -6,8 +6,8 @@
 'use strict';
 
 const
-	gonfig   = require( 'gonfig' ),
-	Response = require( 'http-response-class' );
+	{ name, version } = require( 'config' ),
+	Response          = require( 'http-response-class' );
 
 /**
  *
@@ -15,14 +15,9 @@ const
  * @param {http.Response} res - HTTP Response
  * @return {Promise<{name: *, version: *} | never>}
  */
-module.exports = ( req, res ) => {
+module.exports.method = 'GET';
+module.exports.route = '/';
+module.exports.exec  = ( req, res ) => {
 	const p = res.locals;
-	
-	return Promise.resolve( gonfig.get( gonfig.sympkg ) )
-		.then( ( { name, version } ) => p.respond( new Response( 200, { name, version } ) ) )
-		.catch(
-			e => e instanceof Response ?
-				p.respond( e ) :
-				p.respond( new Response( e.statusCode || 500, e.data || e.stack || e.message || e ) )
-		);
+	p.respond( new Response( 200, { name, version } ) );
 };

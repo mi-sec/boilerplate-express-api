@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Server.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Server.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** ****************************************************************************************************
+ * File: server.js
+ * Project: boilerplate-express-api
+ * @author Nick Soggin &lt;iSkore@users.noreply.github.com> on 30-Oct-2017
+ *******************************************************************************************************/
+'use strict';
+
+const
+	config      = require( 'config' ),
+	express     = require( 'express' ),
+	helmet      = require( 'helmet' ),
+	bodyParser  = require( 'body-parser' ),
+	logger      = require( 'pino' )( {
+		level: process.env.NODE_ENV === 'production' ? 'info' : 'all'
+	} ),
+	expressPino = require( 'express-pino-logger' ),
+	Response    = require( 'http-response-class' );
+
+const
+	packet                   = require( './middleware/packet' ),
+	captureErrors            = require( './middleware/captureErrors' ),
+	RawHTTPLogs              = require( './services/RawHTTPLogs' ),
+	recursivelyReadDirectory = require( './utils/recursivelyReadDirectory' );
+
+/**
+ * Server
+ */
+class Server
+{
+	constructor()
+	{
+		this.isClosed = false;
+	}
+	
+	bindProcess()
+	{
+		logger.trace( 'bindProcess' );
+		
+		// catch all the ways node might exit
+		process
+			.on( 'SIGINT', ( msg, code ) => {
+				logger.info( msg );
+				process.exit( code );
+			} )
+			.on( 'SIGQUIT', () => logger.info( 'SIGQUIT' ) )
+			.on( 'SIGTERM', ( msg, code ) => {
+				logger.info( 'SIGTERM' );
+				process.exit( code );
+			} );
+		
+		process
+			.on( 'unhandledRejection', err => logger.error( err, 'uncaughtException' ) )
+			.on( 'uncaughtException', err => logger.error( err, 'uncaughtException' ) );
+		
+		process
+			.once( 'beforeExit', () => logger.info( 'beforeExit' ) )
+			.on( 'exit', () => logger.info( 'exit' ) );
+	}
+	
+	/**
+	 * expressInitialize
+	 * @description
+	 * Initialize express middleware and hook the routes from api.json configuration
+	 */
+	expressInitialize()
+	{
+		logger.trace( 'expressInitialize' );
+		
+		this.app = express();
+		
+		this.app.disable( 'x-powered-by' );
+		this.app.set( 'trust proxy', 1 );
+		
+		this.app.use( helmet() );
+		this.app.use( bodyParser.raw( { limit: '5gb' } ) );
+		this.app.use( bodyParser.urlencoded( { extended: false } ) );
+		this.app.use( bodyParser.json() );
+		this.app.use( expressPino( { logger } ) );
+	}
+	
+	/**
+	 * hookRoute
+	 * @param {object} item - item from the api config
+	 * @returns {*} - returns item with required execution function
+	 */
+	hookRoute( item )
+	{
+		const exec = [
+			packet(),
+			( req, res, next ) => {
+				this.reqMeter.mark();
+				next();
+			}
+		];
+		
+		if( Array.isArray( item.exec ) ) {
+			exec.push( ...item.exec );
+		} else {
+			exec.push(
+				( req, res, next ) => {
+					if( res &amp;&amp; res.locals ) {
+						try {
+							item.exec( req, res, next );
+						} catch( e ) {
+							e instanceof Response ?
+								res.locals.respond( e ) :
+								res.locals.respond(
+									new Response( e.statusCode || 500, e.data || e.stack || e.message || e )
+								);
+						}
+					} else {
+						res.status( 500 ).send( 'unknown' );
+					}
+				}
+			);
+		}
+		
+		// hook route to express
+		this.app[ item.method.toLowerCase() ]( item.route, exec );
+		
+		return item;
+	}
+	
+	routerInitialize()
+	{
+		// capture all unknown routes
+		// this.hookRoute( require( './middleware/methodNotAllowed' ) );
+		
+		this.routes.map( item => this.hookRoute( item ) );
+		
+		// capture all unhandled errors that might occur
+		this.app.use( captureErrors() );
+	}
+	
+	async loadRoutes()
+	{
+		this.routes = await recursivelyReadDirectory( config.get( 'server.routes' ) );
+		this.routes = this.routes.map( route => require( route ) );
+	}
+	
+	/**
+	 * initialize
+	 * @description
+	 * Hook `process` variables `uncaughtException`, `unhandledRejection`, and `exit` to handle any potential errors
+	 * that may occur. This will allow us to properly handle exit and log all non-V8 level errors without the program
+	 * crashing.
+	 */
+	async initialize()
+	{
+		// override process handlers to handle failures
+		this.bindProcess();
+		
+		// setup express
+		this.expressInitialize();
+		await this.loadRoutes();
+		
+		this.routerInitialize();
+	}
+	
+	/**
+	 * start
+	 * @description
+	 * create instance of an http server and start listening on the port specified in server.json
+	 * @param {function} cb - call back from PM2
+	 */
+	onStart( cb )
+	{
+		this.server = this.app.listen(
+			config.get( 'server.port' ),
+			config.get( 'server.host' ),
+			() => {
+				process.stdout.write(
+					`${ config.get( 'name' ) } ${ config.get( 'version' ) } ` +
+					`running on ${ config.get( 'server.host' ) }:${ config.get( 'server.port' ) }\n`
+				);
+				
+				logger.info( 'started' );
+				
+				cb();
+			}
+		);
+		
+		this.packets = new RawHTTPLogs( config.get( 'server.logger.maxPacketCapture' ) );
+		this.packets.bind( this.server );
+	}
+	
+	sensors( io )
+	{
+		this.reqMeter = io.meter( 'req/min' );
+	}
+	
+	actuators( io )
+	{
+		io.action( 'process', reply => reply( { env: process.env } ) );
+		io.action( 'server', reply => reply( { server: this.server } ) );
+		io.action( 'config', reply => reply( { config: config } ) );
+		io.action( 'packets', reply => reply( { packets: this.packets } ) );
+	}
+	
+	/**
+	 * onStop
+	 * @param {*} err - error
+	 * @param {function} cb - pm2 callback
+	 * @param {number} code - exit code
+	 * @param {string} signal - kill signal
+	 */
+	onStop( err, cb, code, signal )
+	{
+		if( this.server ) {
+			this.server.close();
+		}
+		
+		if( err ) {
+			logger.error( err );
+		}
+		
+		if( this.isClosed ) {
+			logger.debug( 'Shutdown after SIGINT, forced shutdown...' );
+			process.exit( 0 );
+		}
+		
+		this.isClosed = true;
+		
+		logger.debug( `server exiting with code: ${ code }` );
+		process.exit( code );
+	}
+}
+
+/**
+ * module.exports
+ * @description
+ * export a singleton instance of Server
+ * @type {Server}
+ */
+module.exports = Server;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Server.html">Server</a></li></ul><h3>Mixins</h3><ul><li><a href="structs.html">structs</a></li></ul><h3>Global</h3><ul><li><a href="global.html#absoluteMaximum">absoluteMaximum</a></li><li><a href="global.html#absoluteMinimum">absoluteMinimum</a></li><li><a href="global.html#absoluteValue">absoluteValue</a></li><li><a href="global.html#arrayFilteredForRegex">arrayFilteredForRegex</a></li><li><a href="global.html#ascendingSort">ascendingSort</a></li><li><a href="global.html#bytesToSize">bytesToSize</a></li><li><a href="global.html#captureErrors">captureErrors</a></li><li><a href="global.html#clamp">clamp</a></li><li><a href="global.html#convertHighResolutionTime">convertHighResolutionTime</a></li><li><a href="global.html#convertHRTimeToReadable">convertHRTimeToReadable</a></li><li><a href="global.html#deepValues">deepValues</a></li><li><a href="global.html#defineProperty">defineProperty</a></li><li><a href="global.html#degreesToRadians">degreesToRadians</a></li><li><a href="global.html#doublePrecisionDelta">doublePrecisionDelta</a></li><li><a href="global.html#escapeRegExp">escapeRegExp</a></li><li><a href="global.html#findMissingKeys">findMissingKeys</a></li><li><a href="global.html#flattenObject">flattenObject</a></li><li><a href="global.html#floatPrecisionDelta">floatPrecisionDelta</a></li><li><a href="global.html#generateRandomHex">generateRandomHex</a></li><li><a href="global.html#generateRandomNumber">generateRandomNumber</a></li><li><a href="global.html#generateRandomString">generateRandomString</a></li><li><a href="global.html#getRandomInt">getRandomInt</a></li><li><a href="global.html#getValueForRegexKey">getValueForRegexKey</a></li><li><a href="global.html#isEven">isEven</a></li><li><a href="global.html#isOdd">isOdd</a></li><li><a href="global.html#isSemanticVersion">isSemanticVersion</a></li><li><a href="global.html#isUUIDv4">isUUIDv4</a></li><li><a href="global.html#mean">mean</a></li><li><a href="global.html#method">method</a></li><li><a href="global.html#minAndMax">minAndMax</a></li><li><a href="global.html#nonEnumerableProperty">nonEnumerableProperty</a></li><li><a href="global.html#objectFilteredForRegex">objectFilteredForRegex</a></li><li><a href="global.html#objectId">objectId</a></li><li><a href="global.html#objectToFlatMap">objectToFlatMap</a></li><li><a href="global.html#packet">packet</a></li><li><a href="global.html#percentChange">percentChange</a></li><li><a href="global.html#percentDifference">percentDifference</a></li><li><a href="global.html#percentError">percentError</a></li><li><a href="global.html#performanceDifference">performanceDifference</a></li><li><a href="global.html#positiveFloorAddition">positiveFloorAddition</a></li><li><a href="global.html#precisionDelta">precisionDelta</a></li><li><a href="global.html#radiansToDegrees">radiansToDegrees</a></li><li><a href="global.html#radixToNumber">radixToNumber</a></li><li><a href="global.html#recursivePromiseResolve">recursivePromiseResolve</a></li><li><a href="global.html#regexpFromString">regexpFromString</a></li><li><a href="global.html#removeItemsFromArray">removeItemsFromArray</a></li><li><a href="global.html#removeItemsFromObject">removeItemsFromObject</a></li><li><a href="global.html#replaceMatchesWithValue">replaceMatchesWithValue</a></li><li><a href="global.html#sizeToBytes">sizeToBytes</a></li><li><a href="global.html#sum">sum</a></li><li><a href="global.html#testDigitcase">testDigitcase</a></li><li><a href="global.html#testLowercase">testLowercase</a></li><li><a href="global.html#testMinimumLength">testMinimumLength</a></li><li><a href="global.html#testSpecialcase">testSpecialcase</a></li><li><a href="global.html#testUppercase">testUppercase</a></li><li><a href="global.html#toFixed">toFixed</a></li><li><a href="global.html#toPrecison">toPrecison</a></li><li><a href="global.html#wait">wait</a></li><li><a href="global.html#waitFor">waitFor</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Mar 15 2019 14:47:04 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

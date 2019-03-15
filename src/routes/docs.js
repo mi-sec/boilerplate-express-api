@@ -6,17 +6,12 @@
 'use strict';
 
 const
-	gonfig   = require( 'gonfig' ),
 	Response = require( 'http-response-class' );
 
-module.exports = ( req, res ) => {
-	const p = res.locals;
-	
-	return Promise.resolve( gonfig.get( 'api' ) )
-		.then( d => p.respond( new Response( 200, d ) ) )
-		.catch(
-			e => e instanceof Response ?
-				p.respond( e ) :
-				p.respond( new Response( e.statusCode || 500, e.data || e.stack || e.message || e ) )
-		);
+module.exports.method = 'GET';
+module.exports.route  = '/docs';
+module.exports.exec   = ( req, res ) => {
+	console.log( req );
+	res.locals.respond( new Response( 200, '' ) );
 };
+

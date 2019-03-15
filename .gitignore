@@ -6,10 +6,6 @@ results
 lib/binding
 *.tgz
 
-# Parcel cache
-.cache
-/.cache/
-
 # awsmobilejs
 appsync-info.json
 aws-info.json
@@ -439,12 +435,6 @@ BundleArtifacts/
 Package.StoreAssociation.xml
 _pkginfo.txt
 
-# Visual Studio cache files
-# files ending in .cache can be ignored
-*.[Cc]ache
-# but keep track of directories ending in .cache
-!*.[Cc]ache/
-
 # Others
 ClientBin/
 ~$*
@@ -510,3 +500,9 @@ paket-files/
 
 # JetBrains Rider
 *.sln.iml
+*.iml
+
+# Parcel cache
+.cache
+.cache/
+ui_old/

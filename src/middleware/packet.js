@@ -6,17 +6,16 @@
 'use strict';
 
 const
-	gonfig                  = require( 'gonfig' ),
-	{
-		timeout,
-		dotfiles
-	}                       = gonfig.get( 'server' ),
+	config                  = require( 'config' ),
 	{ promises: { lstat } } = require( 'fs' ),
 	{ resolve }             = require( 'path' ),
 	Response                = require( 'http-response-class' ),
 	UUIDv4                  = require( 'uuid/v4' ),
-	onFinished              = require( 'on-finished' ),
-	debug                   = require( '../debug' );
+	onFinished              = require( 'on-finished' );
+
+const
+	timeout  = config.get( 'server.packet.timeout' ),
+	dotfiles = config.get( 'server.packet.dotfiles' );
 
 /**
  * packet
@@ -27,7 +26,7 @@ const
  * @param {function} next - next middleware function
  */
 function packet( req, res, next ) {
-	debug( '[middleware] packet' );
+	req.log.trace( '[middleware] captureParameters' );
 	
 	const id = UUIDv4();
 	
@@ -41,11 +40,8 @@ function packet( req, res, next ) {
 		cookies: req.cookies,
 		data: req.body || req.data,
 		headers: {
-			'Access-Control-Expose-Headers': '*',
-			'Access-Control-Allow-Origin': '*',
-			'Access-Control-Max-Age': 1728000,
-			'Content-Type': 'application/json; charset=utf-8',
-			RequestID: id
+			'Content-Type': 'application/json',
+			'X-Request-ID': id
 		},
 		ContentLength: req.headers[ 'content-length' ],
 		IP: req.ip
@@ -132,20 +128,7 @@ function packet( req, res, next ) {
 	
 	// hook logging and clean up on the response
 	onFinished( res, ( e, d ) => {
-		const
-			timestamp = new Date().toISOString(),
-			request   = `HTTP/${ req.httpVersion } ${ req.method } ${ req.path }`,
-			response  = `${ d.statusCode } ${ d.statusMessage }`,
-			inBytes   = +req.headers[ 'content-length' ] || 0,
-			outBytes  = +d._contentLength || 0,
-			time      = packet.internalTime;
-		
-		if( gonfig.get( 'logformat' ) === 'standard' ) {
-			console.log( `${ timestamp } ${ request } | ${ response } | ${ inBytes } | ${ outBytes } | ${ time }` );
-		} else {
-			console.log( { timestamp, request, response, in: inBytes, out: outBytes, time } );
-		}
-		
+		req.log.debug( packet.internalTime );
 		!packet || packet.kill();
 		res = null;
 	} );

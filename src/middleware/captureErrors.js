@@ -7,8 +7,7 @@
 
 const
 	Response = require( 'http-response-class' ),
-	UUIDv4   = require( 'uuid/v4' ),
-	debug    = require( '../debug' );
+	UUIDv4   = require( 'uuid/v4' );
 
 /**
  * captureErrors
@@ -20,13 +19,13 @@ const
  * @param {function} next - next middleware function
  */
 function captureErrors( e, req, res, next ) {
-	debug( '[middleware] captureErrors' );
-
+	req.log.trace( '[middleware] captureErrors' );
+	
 	if( e ) {
 		const
 			resp = new Response( e.statusCode || 500, e.data || e.stack || e.message || e ),
 			data = JSON.stringify( resp.data );
-
+		
 		if( res.locals.respond ) {
 			res.locals.respond( resp );
 		} else {

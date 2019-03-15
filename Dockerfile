@@ -1,22 +1,32 @@
+FROM node:10 AS build
+
+WORKDIR /opt/app/
+
+COPY ./package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npm run build
+
 FROM node:10
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /opt/app/
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+COPY ./package*.json ./
 
-RUN npm install --production
+RUN npm ci --only=production
 
-# Bundle app source
 COPY . .
+
+COPY --from=build /opt/app/build/ ./build
 
 # Open port 3000
 EXPOSE 3000
 
 RUN npm install -g pm2
+RUN npm install pino-elasticsearch -g
 
-# Run command "npm start"
-CMD [ "pm2-runtime", "start", "ecosystem.config.js", "--env", "production" ]
+CMD pm2-docker start ecosystem.config.js --env production | pino-elasticsearch --host elasticsearch

@@ -3,7 +3,13 @@ module.exports = {
 		es6: true,
 		node: true
 	},
-	extends: 'eslint:recommended',
+	extends: [
+		'eslint:recommended'
+		// 'plugin:security/recommended'
+	],
+	// plugins: [
+	// 	'security'
+	// ],
 	parserOptions: {
 		ecmaVersion: 2017,
 		ecmaFeatures: {
@@ -19,7 +25,21 @@ module.exports = {
 		it: true,
 		JSON: true,
 		console: true,
-		Blob: true
+		'$': true,
+		M: true,
+		document: true,
+		location: true,
+		window: true,
+		sessionStorage: true,
+		localStorage: true,
+		Blob: true,
+		L: true,
+		Materialize: true,
+		navigator: true,
+		alert: true,
+		import: true,
+		require: true,
+		fetch: true
 	},
 	rules: {
 		indent: [
@@ -50,7 +70,6 @@ module.exports = {
 			}
 		],
 		'block-spacing': [ 1, 'always' ],
-		'brace-style': 'off',
 		camelcase: 'off',
 		'comma-dangle': [ 1, 'never' ],
 		'comma-spacing': [
