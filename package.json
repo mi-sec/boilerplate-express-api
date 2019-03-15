@@ -1,6 +1,6 @@
 {
 	"name": "boilerplate-express-api",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"description": "Boilerplate ExpressJS API",
 	"main": "build/entrypoint.js",
 	"scripts": {
