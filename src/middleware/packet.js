@@ -26,7 +26,7 @@ const
  * @param {function} next - next middleware function
  */
 function packet( req, res, next ) {
-	req.log.trace( '[middleware] captureParameters' );
+	req.log.trace( '[middleware] packet' );
 	
 	const id = UUIDv4();
 	
@@ -127,7 +127,11 @@ function packet( req, res, next ) {
 	res.locals = packet;
 	
 	// hook logging and clean up on the response
-	onFinished( res, ( e, d ) => {
+	onFinished( res, e => {
+		if( e ) {
+			req.log.error( e );
+		}
+		
 		req.log.debug( packet.internalTime );
 		!packet || packet.kill();
 		res = null;
@@ -136,6 +140,4 @@ function packet( req, res, next ) {
 	next();
 }
 
-module.exports = () => {
-	return packet;
-};
+module.exports = () => packet;

@@ -14,4 +14,3 @@ module.exports.exec   = ( req, res ) => {
 	console.log( req );
 	res.locals.respond( new Response( 200, '' ) );
 };
-
