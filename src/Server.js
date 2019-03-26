@@ -11,7 +11,7 @@ const
 	helmet      = require( 'helmet' ),
 	bodyParser  = require( 'body-parser' ),
 	logger      = require( 'pino' )( {
-		level: process.env.NODE_ENV === 'production' ? 'info' : 'all'
+		level: process.env.NODE_ENV === 'production' ? 'info' : 'trace'
 	} ),
 	expressPino = require( 'express-pino-logger' ),
 	Response    = require( 'http-response-class' );
