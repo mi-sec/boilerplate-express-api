@@ -35,7 +35,7 @@ function captureErrors( e, req, res, next ) {
 					'Access-Control-Max-Age': 1728000,
 					'Content-Type': 'application/json; charset=utf-8',
 					'Content-Length': data.length,
-					RequestID: UUIDv4()
+					'X-Request-ID': UUIDv4()
 				} )
 				.status( resp.statusCode )
 				.send( data );
@@ -45,7 +45,5 @@ function captureErrors( e, req, res, next ) {
 	}
 }
 
-module.exports = () => {
-	return captureErrors;
-};
+module.exports = () => captureErrors;
 

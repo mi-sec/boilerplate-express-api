@@ -25,7 +25,7 @@ module.exports = {
 		it: true,
 		JSON: true,
 		console: true,
-		'$': true,
+		$: true,
 		M: true,
 		document: true,
 		location: true,

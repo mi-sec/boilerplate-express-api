@@ -216,13 +216,12 @@ class Server
 		
 		if( this.isClosed ) {
 			logger.debug( 'Shutdown after SIGINT, forced shutdown...' );
-			process.exit( 0 );
 		}
 		
 		this.isClosed = true;
 		
 		logger.debug( `server exiting with code: ${ code }` );
-		process.exit( code );
+		cb();
 	}
 }
 
