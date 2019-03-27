@@ -7,7 +7,7 @@
 
 const
 	io     = require( '@pm2/io' ),
-	Server = require( './Server' );
+	Server = require( './core/Server' );
 
 class API extends io.Entrypoint
 {
