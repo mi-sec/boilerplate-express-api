@@ -26,5 +26,64 @@ module.exports = {
 			timeout: 20000,
 			dotfiles: 'allow'
 		}
+	},
+	
+	mongodb: {
+		uri: 'mongodb://localhost:27017/api',
+		ipFamily: 4,
+		useNewUrlParser: true
+	},
+	
+	authentication: {
+		collectionName: 'user',
+		superuser: {
+			group: 'admin',
+			username: 'admin',
+			password: 'password'
+		},
+		passwordRequirements: {
+			length: 8,
+			uppercase: 2,
+			lowercase: 2,
+			digits: 1,
+			special: 1
+		}
+	},
+	
+	authorization: {
+		collectionName: 'group',
+		groups: [
+			{
+				group: 'admin',
+				permissions: [
+					{
+						effect: 'allow',
+						action: '*',
+						resource: '*'
+					}
+				]
+			},
+			{
+				group: 'user',
+				permissions: [
+					{
+						effect: 'deny',
+						action: [ 'POST', 'GET', 'PUT' ],
+						resource: 'users/'
+					}
+				]
+			},
+			{
+				group: '*',
+				permissions: [
+					{
+						effect: 'allow',
+						action: '*',
+						resource: '/'
+					}
+				]
+			}
+		]
 	}
+	
 };

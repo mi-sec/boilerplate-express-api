@@ -24,6 +24,14 @@ services:
             - nginx
             - elasticsearch
 
+    mongo:
+        container_name: mongo
+        hostname: mongo
+        image: mongo
+        ports:
+            - 27017:27017
+        restart: always
+
     elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch:6.4.1
         hostname: elasticsearch

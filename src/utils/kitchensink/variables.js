@@ -1,6 +1,6 @@
 /** ****************************************************************************************************
  * File: variables.js
- * Project: boilerplate-express-api
+ * Project: melior
  * @author Nick Soggin <iSkore@users.noreply.github.com> on 29-Jan-2019
  *******************************************************************************************************/
 'use strict';

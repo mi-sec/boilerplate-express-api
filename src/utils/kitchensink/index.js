@@ -1,6 +1,6 @@
 /** ****************************************************************************************************
  * File: util.js
- * Project: boilerplate-express-api
+ * Project: melior
  * @author Nick Soggin <iSkore@users.noreply.github.com> on 29-Jan-2019
  *******************************************************************************************************/
 'use strict';
@@ -98,6 +98,32 @@ function hasSome( o, ...args ) {
 	} else {
 		return false;
 	}
+}
+
+function omit( o, ...keys ) {
+	return Object.keys( o )
+		.reduce(
+			( r, k ) => {
+				if( !keys.includes( k ) ) {
+					r[ k ] = o[ k ];
+				}
+				
+				return r;
+			}, {}
+		);
+}
+
+function include( o, ...keys ) {
+	return Object.keys( o )
+		.reduce(
+			( r, k ) => {
+				if( keys.includes( k ) ) {
+					r[ k ] = o[ k ];
+				}
+				
+				return r;
+			}, {}
+		);
 }
 
 function sortObject( o ) {
@@ -1330,7 +1356,7 @@ function testDigitcase( str, n = 0 ) {
  * @example
  * testUppercase( "aBcD1234!!", 2 ) // -> true
  */
-function testSpecialcase( str, n = 0, validCharacters = escapeRegExp( `~!@#$%^&*()_+-={}[]:;<>?,.` ) ) {
+function testSpecialcase( str, n = 0, validCharacters = escapeRegExp( '~!@#$%^&*()_+-={}[]:;<>?,.' ) ) {
 	if( !isString( str ) ) {
 		throw new Error( ARGUMENT_ERROR_STRING );
 	} else if( !isNumber( n ) ) {
@@ -1533,6 +1559,8 @@ module.exports = {
 	has,
 	findMissingKeys,
 	hasSome,
+	omit,
+	include,
 	sortObject,
 	sort,
 	isValidJSON,

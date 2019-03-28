@@ -46,4 +46,3 @@ function captureErrors( e, req, res, next ) {
 }
 
 module.exports = () => captureErrors;
-

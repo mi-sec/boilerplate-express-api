@@ -38,22 +38,12 @@ class Server
 		
 		// catch all the ways node might exit
 		process
-			.on( 'SIGINT', ( msg, code ) => {
-				logger.info( msg );
-				process.exit( code );
-			} )
-			.on( 'SIGQUIT', () => logger.info( 'SIGQUIT' ) )
-			.on( 'SIGTERM', ( msg, code ) => {
-				logger.info( 'SIGTERM' );
-				process.exit( code );
-			} );
-		
-		process
-			.on( 'unhandledRejection', err => logger.error( err, 'uncaughtException' ) )
-			.on( 'uncaughtException', err => logger.error( err, 'uncaughtException' ) );
-		
-		process
-			.once( 'beforeExit', () => logger.info( 'beforeExit' ) )
+			.on( 'SIGINT', ( msg, code ) => ( logger.info( 'SIGINT' ), process.exit( code ) ) )
+			.on( 'SIGQUIT', ( msg, code ) => ( logger.info( 'SIGQUIT' ), process.exit( code ) ) )
+			.on( 'SIGTERM', ( msg, code ) => ( logger.info( 'SIGTERM' ), process.exit( code ) ) )
+			.on( 'unhandledRejection', err => logger.error( 'unhandledRejection', err ) )
+			.on( 'uncaughtException', err => logger.error( 'uncaughtException', err ) )
+			.on( 'beforeExit', () => logger.info( 'beforeExit' ) )
 			.on( 'exit', () => logger.info( 'exit' ) );
 	}
 	
@@ -85,12 +75,11 @@ class Server
 	 */
 	hookRoute( item )
 	{
+		logger.trace( `hookRoute ${ item.method } ${ item.route }` );
+		
 		const exec = [
 			packet(),
-			( req, res, next ) => {
-				this.reqMeter.mark();
-				next();
-			}
+			( req, res, next ) => ( this.meters.reqMeter.mark(), next() )
 		];
 		
 		if( Array.isArray( item.exec ) ) {
@@ -123,10 +112,17 @@ class Server
 	
 	routerInitialize()
 	{
-		// capture all unknown routes
-		// this.hookRoute( require( './middleware/methodNotAllowed' ) );
+		logger.trace( 'routerInitialize' );
 		
 		this.routes.map( item => this.hookRoute( item ) );
+		
+		this.routes.push( this.hookRoute( {
+			route: '*',
+			method: 'ALL',
+			exec: ( req, res ) => res.locals.respond(
+				new Response( 405, `Method: ${ req.method } on ${ req.path } not allowed` )
+			)
+		} ) );
 		
 		// capture all unhandled errors that might occur
 		this.app.use( captureErrors() );
@@ -134,6 +130,8 @@ class Server
 	
 	async loadRoutes()
 	{
+		logger.trace( 'loadRoutes' );
+		
 		this.routes = await recursivelyReadDirectory( config.get( 'server.routes' ) );
 		this.routes = this.routes.map( route => require( route ) );
 	}
@@ -147,6 +145,8 @@ class Server
 	 */
 	async initialize()
 	{
+		logger.trace( 'initialize' );
+		
 		// override process handlers to handle failures
 		this.bindProcess();
 		
@@ -165,6 +165,8 @@ class Server
 	 */
 	onStart( cb )
 	{
+		logger.trace( 'onStart' );
+		
 		this.server = this.app.listen(
 			config.get( 'server.port' ),
 			config.get( 'server.host' ),
@@ -186,11 +188,16 @@ class Server
 	
 	sensors( io )
 	{
-		this.reqMeter = io.meter( 'req/min' );
+		logger.trace( 'sensors' );
+		
+		this.meters          = {};
+		this.meters.reqMeter = io.meter( 'req/min' );
 	}
 	
 	actuators( io )
 	{
+		logger.trace( 'actuators' );
+		
 		io.action( 'process', reply => reply( { env: process.env } ) );
 		io.action( 'server', reply => reply( { server: this.server } ) );
 		io.action( 'config', reply => reply( { config: config } ) );
@@ -206,6 +213,8 @@ class Server
 	 */
 	onStop( err, cb, code, signal )
 	{
+		logger.trace( 'onStop' );
+		
 		if( this.server ) {
 			this.server.close();
 		}

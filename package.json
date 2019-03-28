@@ -24,13 +24,17 @@
 	},
 	"license": "MIT",
 	"dependencies": {
+		"@parellin/lightmap": "0.1.2",
 		"@pm2/io": "4.1.2",
+		"acl": "0.4.11",
+		"argon2": "0.21.0",
 		"body-parser": "1.18.3",
 		"config": "3.0.1",
 		"express": "4.16.4",
 		"express-pino-logger": "4.0.0",
 		"helmet": "3.16.0",
 		"http-response-class": "1.2.4",
+		"mongoose": "5.4.20",
 		"pino": "5.11.1"
 	},
 	"devDependencies": {
