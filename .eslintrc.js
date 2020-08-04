@@ -3,13 +3,7 @@ module.exports = {
 		es6: true,
 		node: true
 	},
-	extends: [
-		'eslint:recommended'
-		// 'plugin:security/recommended'
-	],
-	// plugins: [
-	// 	'security'
-	// ],
+	extends: 'eslint:recommended',
 	parserOptions: {
 		ecmaVersion: 2017,
 		ecmaFeatures: {
@@ -62,6 +56,7 @@ module.exports = {
 		'max-params': [ 1, 6 ],
 		'max-statements': [ 1, 30 ],
 		'accessor-pairs': 'off',
+		'arrow-parens': [ 0, 'as-needed' ],
 		'arrow-spacing': [
 			1,
 			{
@@ -75,8 +70,8 @@ module.exports = {
 		'comma-spacing': [
 			1,
 			{
-				'before': false,
-				'after': true
+				before: false,
+				after: true
 			}
 		],
 		'comma-style': [ 1, 'last' ],
@@ -90,8 +85,8 @@ module.exports = {
 		'generator-star-spacing': [
 			1,
 			{
-				'before': true,
-				'after': true
+				before: true,
+				after: true
 			}
 		],
 		'handle-callback-err': [ 1, '^(err|error)$' ],
@@ -100,11 +95,11 @@ module.exports = {
 			1,
 			{
 				overrides: {
-					catch: { after: false },
-					if: { after: false },
-					for: { after: false },
-					while: { after: false },
-					switch: { after: false }
+					catch: { after: true },
+					if: { after: true },
+					for: { after: true },
+					while: { after: true },
+					switch: { after: true }
 				}
 			}
 		],
@@ -222,7 +217,10 @@ module.exports = {
 			}
 		],
 		'padded-blocks': 'off',
-		quotes: 'off',
+		quotes: [
+			1,
+			'single'
+		],
 		'require-jsdoc': [
 			0,
 			{
@@ -273,7 +271,7 @@ module.exports = {
 			}
 		],
 		'use-isnan': 1,
-		'valid-jsdoc': [ 1, { 'requireReturn': false } ],
+		'valid-jsdoc': [ 1, { requireReturn: false } ],
 		'valid-typeof': 1,
 		'wrap-iife': [ 1, 'any' ],
 		'yield-star-spacing': [ 1, 'both' ],

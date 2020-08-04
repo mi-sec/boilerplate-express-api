@@ -44,13 +44,16 @@ function publicObject( o ) {
 }
 
 function has( o, ...args ) {
-	if( isString( o ) ) {
+	if ( isString( o ) ) {
 		return args.filter( i => o.indexOf( i ) !== -1 ).length === args.length;
-	} else if( isArray( o ) ) {
+	}
+	else if ( isArray( o ) ) {
 		return args.filter( i => o.includes( i ) ).length === args.length;
-	} else if( isObject( o ) ) {
+	}
+	else if ( isObject( o ) ) {
 		return args.filter( i => o.hasOwnProperty( i ) ).length === args.length;
-	} else {
+	}
+	else {
 		return false;
 	}
 }
@@ -65,112 +68,123 @@ function has( o, ...args ) {
  * findMissingKeys( { a: 0, b: 1 }, 'a' ) // -> [ 'b' ]
  */
 function findMissingKeys( o, ...args ) {
-	if( isArray( args[ 0 ] ) ) {
+	if ( isArray( args[ 0 ] ) ) {
 		args = args[ 0 ];
 	}
-	
-	if( !isObject( o ) ) {
+
+	if ( !isObject( o ) ) {
 		throw new Error( ARGUMENT_ERROR_OBJECT );
 	}
-	
+
 	const missing = [];
-	
-	for( let i = 0; i < args.length; i++ ) {
-		if( !o.hasOwnProperty( args[ i ] ) ) {
+
+	for ( let i = 0; i < args.length; i++ ) {
+		if ( !o.hasOwnProperty( args[ i ] ) ) {
 			missing.push( args[ i ] );
 		}
 	}
-	
+
 	return missing;
 }
 
 function hasSome( o, ...args ) {
-	if( isArray( args[ 0 ] ) ) {
+	if ( isArray( args[ 0 ] ) ) {
 		args = args[ 0 ];
 	}
-	
-	if( isString( o ) ) {
+
+	if ( isString( o ) ) {
 		return !!( args.filter( i => o.indexOf( i ) !== -1 ).length );
-	} else if( isArray( o ) ) {
+	}
+	else if ( isArray( o ) ) {
 		return !!( args.filter( i => o.includes( i ) ).length );
-	} else if( isObject( o ) ) {
+	}
+	else if ( isObject( o ) ) {
 		return !!( args.filter( i => o.hasOwnProperty( i ) ).length );
-	} else {
+	}
+	else {
 		return false;
 	}
 }
 
 function sortObject( o ) {
-	if( !isObject( o ) ) {
+	if ( !isObject( o ) ) {
 		throw new Error( ARGUMENT_ERROR_OBJECT );
 	}
-	
+
 	const
 		sorted = {},
 		a      = [];
-	
-	for( const key in o ) {
-		if( o.hasOwnProperty( key ) ) {
+
+	for ( const key in o ) {
+		if ( o.hasOwnProperty( key ) ) {
 			a.push( key );
 		}
 	}
-	
+
 	a.sort();
-	
-	for( let i = 0; i < a.length; i++ ) {
+
+	for ( let i = 0; i < a.length; i++ ) {
 		sorted[ a[ i ] ] = o[ a[ i ] ];
 	}
-	
+
 	return sorted;
 }
 
 function sort( obj ) {
-	if( isArray( obj ) ) {
+	if ( isArray( obj ) ) {
 		return obj.sort();
-	} else if( isObject( obj ) ) {
+	}
+	else if ( isObject( obj ) ) {
 		return sortObject( obj );
-	} else {
+	}
+	else {
 		throw new Error( ARGUMENT_ERROR_ARRAY );
 	}
 }
 
 function stringify( n ) {
-	if( isObject( n ) ) {
+	if ( isObject( n ) ) {
 		return JSON.stringify( n );
-	} else {
+	}
+	else {
 		throw new Error( ARGUMENT_ERROR_OBJECT );
 	}
 }
 
 function parse( n ) {
-	if( !isPrimitive( n ) ) {
+	if ( !isPrimitive( n ) ) {
 		return n;
 	}
-	
-	if( isString( n ) ) {
-		if( isBoolean( n ) || n.startsWith( '{' ) || n.startsWith( '[' ) || n.startsWith( '"' ) ) {
+
+	if ( isString( n ) ) {
+		if ( isBoolean( n ) || n.startsWith( '{' ) || n.startsWith( '[' ) || n.startsWith( '"' ) ) {
 			return JSON.parse( n );
-		} else {
+		}
+		else {
 			return n;
 		}
-	} else {
+	}
+	else {
 		throw new Error( 'Argument Error - expected string' );
 	}
 }
 
 function map( o, fn ) {
-	if( isArray( o ) && isFunction( fn ) ) {
+	if ( isArray( o ) && isFunction( fn ) ) {
 		return o.map( fn );
-	} else if( isObject( o ) && isFunction( fn ) ) {
+	}
+	else if ( isObject( o ) && isFunction( fn ) ) {
 		return keys( o )
 			.reduce( ( r, i ) => {
 				fn( i, r[ i ], r );
 				return r;
 			}, o );
-	} else {
-		if( !isFunction( fn ) ) {
+	}
+	else {
+		if ( !isFunction( fn ) ) {
 			throw new Error( ARGUMENT_ERROR_FUNCTION );
-		} else {
+		}
+		else {
 			throw new Error( ARGUMENT_ERROR_ARRAY );
 		}
 	}
@@ -181,10 +195,10 @@ function startsWith( str, n ) {
 }
 
 function isValidJSON( str ) {
-	if( !isString( str ) || isUndefined( str ) || isNull( str ) ) {
+	if ( !isString( str ) || isUndefined( str ) || isNull( str ) ) {
 		return false;
 	}
-	
+
 	return /^[\],:{}\s]*$/.test(
 		str
 			.replace( /\\["\\/bfnrtu]/g, '@' )
@@ -242,26 +256,27 @@ function isValidQueryString( qs ) {
 }
 
 function buildQueryString( qs ) {
-	if( !isObject( qs ) ) {
+	if ( !isObject( qs ) ) {
 		throw new Error( ARGUMENT_ERROR_OBJECT );
 	}
-	
+
 	function deepCheck( o ) {
 		map( o, ( k, v ) => {
-			if( isObject( v ) ) {
+			if ( isObject( v ) ) {
 				o[ k ] = querystring.stringify( v, ',', ':' );
 			}
 		} );
-		
+
 		return o;
 	}
-	
+
 	qs = deepCheck( qs );
 	qs = querystring.stringify( qs );
-	
-	if( isValidQueryString( qs ) ) {
+
+	if ( isValidQueryString( qs ) ) {
 		return `?${ qs }`;
-	} else {
+	}
+	else {
 		throw new Error( FUNCTION_ERROR );
 	}
 }
@@ -273,22 +288,23 @@ function isEmpty( o ) {
 function flatten( arr, result = [] ) {
 	const
 		length = arr && arr.length;
-	
-	if( !length ) {
+
+	if ( !length ) {
 		return result;
 	}
-	
+
 	let index = -1;
-	
-	while( ++index < length ) {
+
+	while ( ++index < length ) {
 		let value = arr[ index ];
-		if( isArray( value ) ) {
+		if ( isArray( value ) ) {
 			flatten( value, result );
-		} else {
+		}
+		else {
 			result[ result.length ] = value;
 		}
 	}
-	
+
 	return result;
 }
 
@@ -310,23 +326,24 @@ function extractIP( inets ) {
  */
 function defineProperty( o, name, g, s = null ) {
 	let prop;
-	if( !s && isObject( g ) ) {
+	if ( !s && isObject( g ) ) {
 		return Object.defineProperty( o, name, g );
-	} else {
+	}
+	else {
 		prop = {
 			enumerable: false,
 			set: s || undefined,
 			get: g || undefined
 		};
 	}
-	
-	if( o.hasOwnProperty( name ) ) {
+
+	if ( o.hasOwnProperty( name ) ) {
 		throw new Error(
 			`Property "${ name }" already exists on object: ` +
 			JSON.stringify( Object.getOwnPropertyDescriptor( o, name ) )
 		);
 	}
-	
+
 	Object.defineProperty( o, name, prop );
 	return o;
 }
@@ -341,10 +358,10 @@ function defineProperty( o, name, g, s = null ) {
  * @return {Object} - object with the applied modification
  */
 function nonEnumerableProperty( o, name, val ) {
-	if( !isObject( o ) ) {
+	if ( !isObject( o ) ) {
 		throw new Error( ARGUMENT_ERROR_OBJECT );
 	}
-	
+
 	return defineProperty( o, name, {
 		configurable: true,
 		writable: true,
@@ -375,10 +392,10 @@ function isObjectIdReference( id ) {
 }
 
 function extractReferenceId( id ) {
-	if( !isObjectIdReference( id ) ) {
+	if ( !isObjectIdReference( id ) ) {
 		return null;
 	}
-	
+
 	return id.match( /^\$ref:([\da-f]{24})$/i )[ 0 ];
 }
 
@@ -392,13 +409,13 @@ function extractReferenceId( id ) {
  * objectFilteredForRegex( { a: 0, b: 1 }, /A/i ) // -> returns { a: 0 }
  */
 function objectFilteredForRegex( obj, rx ) {
-	if( !isObject( obj ) ) {
+	if ( !isObject( obj ) ) {
 		throw new Error( ARGUMENT_ERROR_OBJECT );
 	}
-	
+
 	const keys = {};
-	for( const key in obj ) {
-		if( obj.hasOwnProperty( key ) && rx.test( key ) ) {
+	for ( const key in obj ) {
+		if ( obj.hasOwnProperty( key ) && rx.test( key ) ) {
 			keys[ key ] = obj[ key ];
 		}
 	}
@@ -415,12 +432,12 @@ function objectFilteredForRegex( obj, rx ) {
  * getValueForRegexKey( { a: 0, b: 1 }, /B/i ) // -> returns 1
  */
 function getValueForRegexKey( obj, rx ) {
-	if( !isObject( obj ) ) {
+	if ( !isObject( obj ) ) {
 		throw new Error( ARGUMENT_ERROR_OBJECT );
 	}
-	
-	for( const key in obj ) {
-		if( obj.hasOwnProperty( key ) && rx.test( key ) ) {
+
+	for ( const key in obj ) {
+		if ( obj.hasOwnProperty( key ) && rx.test( key ) ) {
 			return obj[ key ];
 		}
 	}
@@ -436,10 +453,10 @@ function getValueForRegexKey( obj, rx ) {
  * arrayFilteredForRegex( [ 'a', 'b' ], /a/i ) // -> returns [ 'a' ]
  */
 function arrayFilteredForRegex( arr, rx ) {
-	if( !isArray( arr ) ) {
+	if ( !isArray( arr ) ) {
 		throw new Error( ARGUMENT_ERROR_ARRAY );
 	}
-	
+
 	return arr.filter( i => rx.test( i ) );
 }
 
@@ -454,12 +471,13 @@ function arrayFilteredForRegex( arr, rx ) {
  * removeItemsFromArray( [ 'a', 'b', 'c' ], 'c' ) // -> returns [ 'a', 'b' ]
  */
 function removeItemsFromArray( arr, ...args ) {
-	if( !isArray( arr ) ) {
+	if ( !isArray( arr ) ) {
 		throw new Error( ARGUMENT_ERROR_ARRAY );
-	} else if( isArray( args[ 0 ] ) ) {
+	}
+	else if ( isArray( args[ 0 ] ) ) {
 		args = args[ 0 ];
 	}
-	
+
 	return arr.filter( i => !args.includes( i ) );
 }
 
@@ -474,18 +492,19 @@ function removeItemsFromArray( arr, ...args ) {
  * removeItemsFromObject( { a: 0, b: 1 }, 'a' ) // -> returns { b: 1 }
  */
 function removeItemsFromObject( obj, ...args ) {
-	if( !isObject( obj ) ) {
+	if ( !isObject( obj ) ) {
 		throw new Error( ARGUMENT_ERROR_OBJECT );
-	} else if( isArray( args[ 0 ] ) ) {
+	}
+	else if ( isArray( args[ 0 ] ) ) {
 		args = args[ 0 ];
 	}
-	
+
 	const ks = keys( obj );
-	
+
 	ks.forEach(
 		i => !args.includes( i ) || delete obj[ i ]
 	);
-	
+
 	return obj;
 }
 
@@ -500,10 +519,10 @@ function removeItemsFromObject( obj, ...args ) {
  *     .then() // -> will pass 'hello world' in 100ms
  */
 function wait( t, v ) {
-	if( !isNumber( t ) ) {
+	if ( !isNumber( t ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
 	}
-	
+
 	return new Promise(
 		res => setTimeout( () => res( v ), t )
 	);
@@ -535,12 +554,13 @@ function waitFor( condition, frequency, immediateInvoke = true ) {
 						.catch( () => _waitFor() ),
 					frequency
 				);
-			
-			if( immediateInvoke ) {
+
+			if ( immediateInvoke ) {
 				return checkCondition()
 					.then( res )
 					.catch( () => _waitFor() );
-			} else {
+			}
+			else {
 				return _waitFor();
 			}
 		}
@@ -556,9 +576,10 @@ function waitFor( condition, frequency, immediateInvoke = true ) {
  * absoluteValue( -50 ) // -> returns 50
  */
 function absoluteValue( n ) {
-	if( ~~n === n ) {
+	if ( ~~n === n ) {
 		return ( n ^ ( n >> 31 ) ) - ( n >> 31 );
-	} else {
+	}
+	else {
 		return Math.abs( n );
 	}
 }
@@ -576,12 +597,14 @@ function absoluteValue( n ) {
  */
 function performanceDifference( newTime, oldTime ) {
 	const time = ( ( newTime - oldTime ) / oldTime ) * 100;
-	
-	if( time < 0 ) {
+
+	if ( time < 0 ) {
 		return `Performance increase of: ${ absoluteValue( time ) }%`;
-	} else if( time > 0 ) {
+	}
+	else if ( time > 0 ) {
 		return `Performance decrease of: ${ absoluteValue( time ) }%`;
-	} else {
+	}
+	else {
 		return 'Performance did not change';
 	}
 }
@@ -596,14 +619,14 @@ function performanceDifference( newTime, oldTime ) {
  * bytesToSize( 1073741824 ) // -> 1 GB
  */
 function bytesToSize( bytes ) {
-	if( !bytes ) {
+	if ( !bytes ) {
 		return '0 Byte';
 	}
-	
+
 	const
 		sizes = [ 'Bytes', 'KB', 'MB', 'GB', 'TB' ],
 		i     = ~~( Math.log( bytes ) / LOG_KIBIBYTE );
-	
+
 	return Math.round( bytes / Math.pow( 1024, i ) ) + ' ' + sizes[ i ];
 }
 
@@ -632,7 +655,7 @@ function bytesToSize( bytes ) {
  */
 function sizeToBytes( bytes ) {
 	let match;
-	
+
 	return !bytes ? 0 : bytes === +bytes ? bytes :
 		( match = /^(\d+) ?(tB|Ter[a,i]bytes?)$/gim.exec( bytes ) ) ?
 			/tera/gi.test( match[ 2 ] ) ? match[ 1 ] * 1000000000000 : match[ 1 ] * 1099511627776 :
@@ -643,7 +666,7 @@ function sizeToBytes( bytes ) {
 					( match = /^(\d+) ?(kB|Ki(?:lo|bi)bytes?)$/gim.exec( bytes ) ) ?
 						/kilo/gi.test( match[ 2 ] ) ? match[ 1 ] * 1000 : match[ 1 ] * 1024 :
 						( match = /^(\d+) ?(?:B|Bytes?)$/gim.exec( bytes ) ) ? +match[ 1 ] : 0;
-	
+
 	// Consider digital storage unit specifications
 	// return !bytes ? 0 : bytes === +bytes ? bytes :
 	// 	( match = /^(\d+) ?(tB|TiB|Ter[a,i]bytes?)$/gim.exec( bytes ) ) ?
@@ -664,16 +687,19 @@ function sizeToBytes( bytes ) {
  * @returns {number} 2, 8, 10, or 16 to specify radix
  */
 function radixToNumber( radix ) {
-	if( radix === 'binary' ) {
+	if ( radix === 'binary' ) {
 		radix = 2;
-	} else if( radix === 'octal' ) {
+	}
+	else if ( radix === 'octal' ) {
 		radix = 8;
-	} else if( radix === 'base10' ) {
+	}
+	else if ( radix === 'base10' ) {
 		radix = 10;
-	} else {
+	}
+	else {
 		radix = 16;
 	}
-	
+
 	return radix;
 }
 
@@ -687,13 +713,14 @@ function radixToNumber( radix ) {
  */
 function generateRandomNumber( min = 0, max = 16, floored = true ) {
 	let n;
-	
-	if( min < 0 ) {
+
+	if ( min < 0 ) {
 		n = min + Math.random() * ( absoluteValue( min ) + max );
-	} else {
+	}
+	else {
 		n = min + Math.random() * max;
 	}
-	
+
 	return floored ? n | 0 : n;
 }
 
@@ -744,23 +771,26 @@ function getRandomInt( min, max ) {
  * replaceMatchesWithValue( "abc", /abc/i, "123" )
  */
 function replaceMatchesWithValue( item, identifier, replacement ) {
-	if( !isString( item ) ) {
+	if ( !isString( item ) ) {
 		throw new Error( ARGUMENT_ERROR_STRING );
-	} else if( !isNumber( replacement ) && !isString( replacement ) ) {
+	}
+	else if ( !isNumber( replacement ) && !isString( replacement ) ) {
 		throw new Error( ARGUMENT_ERROR );
 	}
-	
+
 	let check;
-	
-	if( identifier instanceof RegExp ) {
+
+	if ( identifier instanceof RegExp ) {
 		check = item.match( identifier );
-	} else {
+	}
+	else {
 		check = item.includes( identifier );
 	}
-	
-	if( check ) {
+
+	if ( check ) {
 		return item.replace( identifier, replacement );
-	} else {
+	}
+	else {
 		return item;
 	}
 }
@@ -781,7 +811,7 @@ function recursivePromiseResolve( P ) {
 		),
 		props = o => {
 			const arr = [];
-			
+
 			keys( o )
 				.map(
 					k => arr.push(
@@ -789,27 +819,28 @@ function recursivePromiseResolve( P ) {
 							.then( v => ( o[ k ] = v, o ) )
 					)
 				);
-			
+
 			return Promise.all( arr ).then( () => ( o ) );
 		},
 		rNP   = o => Promise.resolve( o )
 			.then( o => {
-				if( isArray( o ) ) {
+				if ( isArray( o ) ) {
 					return map( o, rNP );
-				} else if( typeof o === 'object' ) {
+				}
+				else if ( typeof o === 'object' ) {
 					const oa = {};
-					
-					for( const ka in o ) {
-						if( o.hasOwnProperty( ka ) ) {
+
+					for ( const ka in o ) {
+						if ( o.hasOwnProperty( ka ) ) {
 							oa[ ka ] = rNP( o[ ka ] );
 						}
 					}
-					
+
 					return props( oa );
 				}
 				return o;
 			} );
-	
+
 	return ( rNP )( P );
 }
 
@@ -845,18 +876,19 @@ function objectId( len = 16 ) {
  * convertHighResolutionTime( end ); // -> { seconds: 0.000002, milli: 0.002, micro: 2, nano: 2000 }
  */
 function convertHighResolutionTime( hrtime ) {
-	if( !isArray( hrtime ) ) {
+	if ( !isArray( hrtime ) ) {
 		throw new Error( ARGUMENT_ERROR_ARRAY );
-	} else if( hrtime.length !== 2 ) {
+	}
+	else if ( hrtime.length !== 2 ) {
 		throw new Error( ARGUMENT_ERROR_PROPERTY( 'hrtime_tuple' ) );
 	}
-	
+
 	const
 		nano    = ( hrtime[ 0 ] * 1e9 ) + hrtime[ 1 ],
 		micro   = nano / 1e3,
 		milli   = nano / 1e6,
 		seconds = nano / 1e9;
-	
+
 	return { seconds, milli, micro, nano };
 }
 
@@ -871,7 +903,7 @@ function convertHighResolutionTime( hrtime ) {
  */
 function convertHRTimeToReadable( hrtime ) {
 	const t = convertHighResolutionTime( hrtime );
-	
+
 	return t.nano < 1000 ? `${ toFixed( t.nano ) } ns` :
 		t.nano < 1000000 ? `${ toFixed( t.micro ) } μs` :
 			t.nano < 1000000000 ? `${ toFixed( t.milli ) } ms` :
@@ -889,10 +921,10 @@ function convertHRTimeToReadable( hrtime ) {
  * isUUIDv4( 'b33ce0f0-fadc-11e7-8da3-d19e5c798a48' ) // -> false
  */
 function isUUIDv4( uuid ) {
-	if( !isString( uuid ) ) {
+	if ( !isString( uuid ) ) {
 		throw new Error( ARGUMENT_ERROR_STRING );
 	}
-	
+
 	return /[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}/i.test( uuid );
 }
 
@@ -907,10 +939,10 @@ function isUUIDv4( uuid ) {
  * ascendingSort( 10, 9 ) // -> 1
  */
 function ascendingSort( n1, n2 ) {
-	if( !isNumber( n1, n2 ) ) {
+	if ( !isNumber( n1, n2 ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
 	}
-	
+
 	return n1 - n2;
 }
 
@@ -973,12 +1005,12 @@ function absoluteMaximum( n1, n2 ) {
  * precisionDelta( 100, 101, 0.9999999999999999, 0 ) // -> false
  */
 function precisionDelta( n1, n2, absoluteTolerance = 0, relativeTolerance = 0 ) {
-	if( !isNumber( n1, n2, absoluteTolerance, relativeTolerance ) ) {
+	if ( !isNumber( n1, n2, absoluteTolerance, relativeTolerance ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
 	}
-	
+
 	const delta = absoluteValue( n1 - n2 );
-	
+
 	return delta <= absoluteTolerance ||
 		delta <= relativeTolerance * absoluteMinimum( n1, n2 ) ||
 		n1 === n2;
@@ -1028,16 +1060,17 @@ function doublePrecisionDelta( n1, n2 ) {
  * percentError( 1, 1.09, 0.08 ) // -> false
  */
 function percentError( n1, n2, acceptedDelta ) {
-	if( !isNumber( n1, n2, acceptedDelta ) ) {
+	if ( !isNumber( n1, n2, acceptedDelta ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
-	} else if( ~~acceptedDelta !== 0 ) {
+	}
+	else if ( ~~acceptedDelta !== 0 ) {
 		throw new Error( ARGUMENT_ERROR_PROPERTY( 'acceptedDelta must be a number between 0 and 1' ) );
 	}
-	
-	if( acceptedDelta === 0 ) {
+
+	if ( acceptedDelta === 0 ) {
 		return n1 === n2;
 	}
-	
+
 	return acceptedDelta >= absoluteValue( ( n1 - n2 ) / n2 );
 }
 
@@ -1057,10 +1090,10 @@ function percentError( n1, n2, acceptedDelta ) {
  * percentDifference( 50, 100 ) // -> 0.6666666666666666
  */
 function percentDifference( n1, n2 ) {
-	if( !isNumber( n1, n2 ) ) {
+	if ( !isNumber( n1, n2 ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
 	}
-	
+
 	return ( absoluteValue( n1 - n2 ) / ( ( n1 + n2 ) / 2 ) );
 }
 
@@ -1080,10 +1113,10 @@ function percentDifference( n1, n2 ) {
  * percentChange( 100, 80 ) // -> -0.2
  */
 function percentChange( n1, n2 ) {
-	if( !isNumber( n1, n2 ) ) {
+	if ( !isNumber( n1, n2 ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
 	}
-	
+
 	return ( ( n2 - n1 ) / absoluteValue( n1 ) );
 }
 
@@ -1098,20 +1131,20 @@ function percentChange( n1, n2 ) {
  * sum( 1, 2, 3 ); // -> 6
  */
 function sum( ...args ) {
-	if( isArray( args[ 0 ] ) ) {
+	if ( isArray( args[ 0 ] ) ) {
 		args = args[ 0 ];
 	}
-	
-	if( !isNumber( ...args ) ) {
+
+	if ( !isNumber( ...args ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
 	}
-	
+
 	let n = 0;
-	
-	for( let i = 0; i < args.length; i++ ) {
+
+	for ( let i = 0; i < args.length; i++ ) {
 		n += args[ i ];
 	}
-	
+
 	return n;
 }
 
@@ -1140,10 +1173,10 @@ function mean( ...args ) {
  * isSemanticVersion( '0.2.4' ) // -> false
  */
 function isSemanticVersion( n ) {
-	if( !isString( n ) ) {
+	if ( !isString( n ) ) {
 		return false;
 	}
-	
+
 	return ( /\bv?(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[\da-z-]+(?:\.[\da-z-]+)*)?(?:\+[\da-z-]+(?:\.[\da-z-]+)*)?\b/ig ).test( n );
 }
 
@@ -1156,18 +1189,19 @@ function isSemanticVersion( n ) {
  * @return {{}} - flatten results
  */
 function flattenObject( obj, r = {} ) {
-	for( const i in obj ) {
-		if( !obj.hasOwnProperty( i ) ) {
+	for ( const i in obj ) {
+		if ( !obj.hasOwnProperty( i ) ) {
 			continue;
 		}
-		
-		if( isObject( obj[ i ] ) ) {
+
+		if ( isObject( obj[ i ] ) ) {
 			r = { ...r, ...flattenObject( obj[ i ], r ) };
-		} else {
+		}
+		else {
 			r[ i ] = obj[ i ];
 		}
 	}
-	
+
 	return r;
 }
 
@@ -1180,24 +1214,26 @@ function flattenObject( obj, r = {} ) {
  * @return {Array} - value results
  */
 function deepValues( obj, r = [] ) {
-	if( !isArray( r ) ) {
+	if ( !isArray( r ) ) {
 		throw new Error( ARGUMENT_ERROR_ARRAY );
 	}
-	
-	for( const i in obj ) {
-		if( !obj.hasOwnProperty( i ) ) {
+
+	for ( const i in obj ) {
+		if ( !obj.hasOwnProperty( i ) ) {
 			continue;
 		}
-		
-		if( isObject( obj[ i ] ) ) {
+
+		if ( isObject( obj[ i ] ) ) {
 			r.concat( deepValues( obj[ i ], r ) );
-		} else if( isArray( obj[ i ] ) ) {
+		}
+		else if ( isArray( obj[ i ] ) ) {
 			r.concat( obj[ i ] );
-		} else {
+		}
+		else {
 			r.push( obj[ i ] );
 		}
 	}
-	
+
 	return r;
 }
 
@@ -1209,20 +1245,21 @@ function deepValues( obj, r = [] ) {
  * @returns {{min: number, max: number}} - "min" and "max" respectively
  */
 function minAndMax( arr ) {
-	if( !isAnyArray( arr ) ) {
+	if ( !isAnyArray( arr ) ) {
 		throw new Error( ARGUMENT_ERROR_ARRAY );
 	}
-	
+
 	let min = Infinity, max = -Infinity, i = 0;
-	
-	for( ; i < arr.length; i++ ) {
-		if( min >= arr[ i ] ) {
+
+	for ( ; i < arr.length; i++ ) {
+		if ( min >= arr[ i ] ) {
 			min = arr[ i ];
-		} else if( max <= arr[ i ] ) {
+		}
+		else if ( max <= arr[ i ] ) {
 			max = arr[ i ];
 		}
 	}
-	
+
 	return { min, max };
 }
 
@@ -1236,10 +1273,10 @@ function minAndMax( arr ) {
  * escapeRegExp( '(?=[[]])' ) // -> '\\(\\?=\\[\\[\\]\\]\\)'
  */
 function escapeRegExp( str ) {
-	if( !isString( str ) ) {
+	if ( !isString( str ) ) {
 		throw new Error( ARGUMENT_ERROR_STRING );
 	}
-	
+
 	return str.replace( /[-[\]/{}()*+?.\\^$|]/g, '\\$&' );
 }
 
@@ -1252,10 +1289,10 @@ function escapeRegExp( str ) {
  * @returns {RegExp} - returns build RegExp object
  */
 function regexpFromString( str, flags = 'igm' ) {
-	if( !isString( str, flags ) ) {
+	if ( !isString( str, flags ) ) {
 		throw new Error( ARGUMENT_ERROR_STRING );
 	}
-	
+
 	return new RegExp( str, flags );
 }
 
@@ -1270,12 +1307,13 @@ function regexpFromString( str, flags = 'igm' ) {
  * testUppercase( "aBcD1234", 2 ) // -> true
  */
 function testUppercase( str, n = 0 ) {
-	if( !isString( str ) ) {
+	if ( !isString( str ) ) {
 		throw new Error( ARGUMENT_ERROR_STRING );
-	} else if( !isNumber( n ) ) {
+	}
+	else if ( !isNumber( n ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
 	}
-	
+
 	return regexpFromString( `(?=${ '.*[A-Z]'.repeat( n ) })`, 'gm' ).test( str );
 }
 
@@ -1290,12 +1328,13 @@ function testUppercase( str, n = 0 ) {
  * testUppercase( "aBcD1234", 2 ) // -> true
  */
 function testLowercase( str, n = 0 ) {
-	if( !isString( str ) ) {
+	if ( !isString( str ) ) {
 		throw new Error( ARGUMENT_ERROR_STRING );
-	} else if( !isNumber( n ) ) {
+	}
+	else if ( !isNumber( n ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
 	}
-	
+
 	return regexpFromString( `(?=${ '.*[a-z]'.repeat( n ) })`, 'gm' ).test( str );
 }
 
@@ -1310,12 +1349,13 @@ function testLowercase( str, n = 0 ) {
  * testUppercase( "aBcD1234", 2 ) // -> true
  */
 function testDigitcase( str, n = 0 ) {
-	if( !isString( str ) ) {
+	if ( !isString( str ) ) {
 		throw new Error( ARGUMENT_ERROR_STRING );
-	} else if( !isNumber( n ) ) {
+	}
+	else if ( !isNumber( n ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
 	}
-	
+
 	return regexpFromString( `(?=${ '.*[0-9]'.repeat( n ) })`, 'igm' ).test( str );
 }
 
@@ -1331,12 +1371,13 @@ function testDigitcase( str, n = 0 ) {
  * testUppercase( "aBcD1234!!", 2 ) // -> true
  */
 function testSpecialcase( str, n = 0, validCharacters = escapeRegExp( `~!@#$%^&*()_+-={}[]:;<>?,.` ) ) {
-	if( !isString( str ) ) {
+	if ( !isString( str ) ) {
 		throw new Error( ARGUMENT_ERROR_STRING );
-	} else if( !isNumber( n ) ) {
+	}
+	else if ( !isNumber( n ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
 	}
-	
+
 	return regexpFromString( `(?=${ ( '.*[' + validCharacters + ']' ).repeat( n ) })`, 'igm' ).test( str );
 }
 
@@ -1351,12 +1392,13 @@ function testSpecialcase( str, n = 0, validCharacters = escapeRegExp( `~!@#$%^&*
  * testUppercase( "aBcD1234", 2 ) // -> true
  */
 function testMinimumLength( str, n = 8 ) {
-	if( !isString( str ) ) {
+	if ( !isString( str ) ) {
 		throw new Error( ARGUMENT_ERROR_STRING );
-	} else if( !isNumber( n ) ) {
+	}
+	else if ( !isNumber( n ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
 	}
-	
+
 	return str.length >= n;
 }
 
@@ -1398,10 +1440,10 @@ function toFixed( n, p = 2 ) {
  * isEven( 4 ) // -> true
  */
 function isEven( n ) {
-	if( !isNumber( n ) ) {
+	if ( !isNumber( n ) ) {
 		return false;
 	}
-	
+
 	return n && n === ~~n && !( ~~n & 1 );
 }
 
@@ -1428,21 +1470,22 @@ function isOdd( n ) {
  * objectToFlatMap( { a: { b: 1 } } ) // -> map { 'b' => 1 }
  */
 function objectToFlatMap( obj, result = new Map() ) {
-	if( !isObject( obj ) ) {
+	if ( !isObject( obj ) ) {
 		throw new Error( ARGUMENT_ERROR_OBJECT );
 	}
-	
+
 	keys( obj )
 		.forEach( k => {
 			const v = obj[ k ];
-			
-			if( isObject( v ) ) {
+
+			if ( isObject( v ) ) {
 				objectToFlatMap( v, result );
-			} else {
+			}
+			else {
 				result.set( k, v );
 			}
 		} );
-	
+
 	return result;
 }
 
@@ -1454,10 +1497,10 @@ function objectToFlatMap( obj, result = new Map() ) {
  * @return {number} - result
  */
 function positiveFloorAddition( n ) {
-	if( !isNumber( n ) ) {
+	if ( !isNumber( n ) ) {
 		throw new Error( ARGUMENT_ERROR_NUMBER );
 	}
-	
+
 	return ~~-~( n );
 }
 

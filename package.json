@@ -5,7 +5,7 @@
 	"main": "build/entrypoint.js",
 	"scripts": {
 		"build": "parcel build -d build -t node --detailed-report --no-cache --no-source-maps src/entrypoint.js",
-		"dev": "nodemon src/entrypoint.js",
+		"dev": "pm2-runtime start ecosystem.config.js --env development",
 		"docs": "jsdoc -c jsdocs.js -r",
 		"lint": "eslint .",
 		"start": "node src/entrypoint.js",
@@ -24,21 +24,23 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@pm2/io": "4.1.2",
-		"body-parser": "1.18.3",
-		"config": "3.0.1",
-		"express": "4.16.4",
+		"@pm2/io": "4.2.4",
+		"body-parser": "1.19.0",
+		"config": "3.1.0",
+		"express": "4.17.1",
 		"express-pino-logger": "4.0.0",
-		"helmet": "3.16.0",
-		"http-response-class": "1.2.4",
-		"pino": "5.11.1"
+		"helmet": "3.18.0",
+		"http-response-class": "1.2.6",
+		"on-finished": "2.3.0",
+		"pino": "5.12.6",
+		"uuid": "3.3.2"
 	},
 	"devDependencies": {
 		"chai": "4.2.0",
 		"chai-as-promised": "7.1.1",
-		"chai-http": "4.2.1",
-		"eslint": "5.15.2",
-		"mocha": "6.0.2",
-		"parcel": "1.12.2"
+		"chai-http": "4.3.0",
+		"eslint": "6.0.1",
+		"mocha": "6.1.4",
+		"parcel": "1.12.3"
 	}
 }

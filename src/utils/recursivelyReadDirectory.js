@@ -11,22 +11,23 @@ const
 
 async function recursivelyReadDirectory( dir, items = [] ) {
 	const layer = await readdir( resolve( dir ) );
-	
+
 	await Promise.all(
 		layer.map(
 			async fpath => {
 				fpath      = join( dir, fpath );
 				const info = await stat( fpath );
-				
-				if( info.isDirectory() ) {
+
+				if ( info.isDirectory() ) {
 					return await recursivelyReadDirectory( fpath, items );
-				} else {
+				}
+				else {
 					items.push( fpath );
 				}
 			}
 		)
 	);
-	
+
 	return items;
 }
 

@@ -20,30 +20,31 @@ const
  */
 function captureErrors( e, req, res, next ) {
 	req.log.trace( '[middleware] captureErrors' );
-	
-	if( e ) {
+
+	if ( e ) {
 		const
 			resp = new Response( e.statusCode || 500, e.data || e.stack || e.message || e ),
 			data = JSON.stringify( resp.data );
-		
-		if( res.locals.respond ) {
+
+		if ( res.locals.respond ) {
 			res.locals.respond( resp );
-		} else {
+		}
+		else {
 			res
 				.set( {
 					'Access-Control-Allow-Origin': '*',
 					'Access-Control-Max-Age': 1728000,
 					'Content-Type': 'application/json; charset=utf-8',
 					'Content-Length': data.length,
-					'X-Request-ID': UUIDv4()
+					'Request-ID': UUIDv4()
 				} )
 				.status( resp.statusCode )
 				.send( data );
 		}
-	} else {
+	}
+	else {
 		next();
 	}
 }
 
 module.exports = () => captureErrors;
-

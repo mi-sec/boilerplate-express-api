@@ -12,13 +12,13 @@ class LimitedArray extends Array
 		super();
 		this.max = length;
 	}
-	
+
 	push( val )
 	{
-		if( this.length >= this.max ) {
+		if ( this.length >= this.max ) {
 			this.splice( 0, this.length - this.max + 1 );
 		}
-		
+
 		return super.push( val );
 	}
 }

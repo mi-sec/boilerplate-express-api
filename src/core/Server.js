@@ -31,11 +31,11 @@ class Server
 	{
 		this.isClosed = false;
 	}
-	
+
 	bindProcess()
 	{
 		logger.trace( 'bindProcess' );
-		
+
 		// catch all the ways node might exit
 		process
 			.on( 'SIGINT', ( msg, code ) => {
@@ -47,16 +47,16 @@ class Server
 				logger.info( 'SIGTERM' );
 				process.exit( code );
 			} );
-		
+
 		process
 			.on( 'unhandledRejection', err => logger.error( err, 'uncaughtException' ) )
 			.on( 'uncaughtException', err => logger.error( err, 'uncaughtException' ) );
-		
+
 		process
 			.once( 'beforeExit', () => logger.info( 'beforeExit' ) )
 			.on( 'exit', () => logger.info( 'exit' ) );
 	}
-	
+
 	/**
 	 * expressInitialize
 	 * @description
@@ -65,19 +65,19 @@ class Server
 	expressInitialize()
 	{
 		logger.trace( 'expressInitialize' );
-		
+
 		this.app = express();
-		
+
 		this.app.disable( 'x-powered-by' );
 		this.app.set( 'trust proxy', 1 );
-		
+
 		this.app.use( helmet() );
 		this.app.use( bodyParser.raw( { limit: '5gb' } ) );
 		this.app.use( bodyParser.urlencoded( { extended: false } ) );
 		this.app.use( bodyParser.json() );
 		this.app.use( expressPino( { logger } ) );
 	}
-	
+
 	/**
 	 * hookRoute
 	 * @param {object} item - item from the api config
@@ -92,52 +92,54 @@ class Server
 				next();
 			}
 		];
-		
-		if( Array.isArray( item.exec ) ) {
+
+		if ( Array.isArray( item.exec ) ) {
 			exec.push( ...item.exec );
-		} else {
+		}
+		else {
 			exec.push(
 				( req, res, next ) => {
-					if( res && res.locals ) {
+					if ( res && res.locals ) {
 						try {
 							item.exec( req, res, next );
-						} catch( e ) {
+						} catch ( e ) {
 							e instanceof Response ?
 								res.locals.respond( e ) :
 								res.locals.respond(
 									new Response( e.statusCode || 500, e.data || e.stack || e.message || e )
 								);
 						}
-					} else {
+					}
+					else {
 						res.status( 500 ).send( 'unknown' );
 					}
 				}
 			);
 		}
-		
+
 		// hook route to express
 		this.app[ item.method.toLowerCase() ]( item.route, exec );
-		
+
 		return item;
 	}
-	
+
 	routerInitialize()
 	{
 		// capture all unknown routes
 		// this.hookRoute( require( './middleware/methodNotAllowed' ) );
-		
+
 		this.routes.map( item => this.hookRoute( item ) );
-		
+
 		// capture all unhandled errors that might occur
 		this.app.use( captureErrors() );
 	}
-	
+
 	async loadRoutes()
 	{
 		this.routes = await recursivelyReadDirectory( config.get( 'server.routes' ) );
 		this.routes = this.routes.map( route => require( route ) );
 	}
-	
+
 	/**
 	 * initialize
 	 * @description
@@ -149,14 +151,14 @@ class Server
 	{
 		// override process handlers to handle failures
 		this.bindProcess();
-		
+
 		// setup express
 		this.expressInitialize();
 		await this.loadRoutes();
-		
+
 		this.routerInitialize();
 	}
-	
+
 	/**
 	 * start
 	 * @description
@@ -173,22 +175,22 @@ class Server
 					`${ config.get( 'name' ) } ${ config.get( 'version' ) } ` +
 					`running on ${ config.get( 'server.host' ) }:${ config.get( 'server.port' ) }\n`
 				);
-				
+
 				logger.info( 'started' );
-				
+
 				cb();
 			}
 		);
-		
+
 		this.packets = new RawHTTPLogs( config.get( 'server.logger.maxPacketCapture' ) );
 		this.packets.bind( this.server );
 	}
-	
+
 	sensors( io )
 	{
 		this.reqMeter = io.meter( 'req/min' );
 	}
-	
+
 	actuators( io )
 	{
 		io.action( 'process', reply => reply( { env: process.env } ) );
@@ -196,7 +198,7 @@ class Server
 		io.action( 'config', reply => reply( { config: config } ) );
 		io.action( 'packets', reply => reply( { packets: this.packets } ) );
 	}
-	
+
 	/**
 	 * onStop
 	 * @param {*} err - error
@@ -206,20 +208,20 @@ class Server
 	 */
 	onStop( err, cb, code, signal )
 	{
-		if( this.server ) {
+		if ( this.server ) {
 			this.server.close();
 		}
-		
-		if( err ) {
+
+		if ( err ) {
 			logger.error( err );
 		}
-		
-		if( this.isClosed ) {
+
+		if ( this.isClosed ) {
 			logger.debug( 'Shutdown after SIGINT, forced shutdown...' );
 		}
-		
+
 		this.isClosed = true;
-		
+
 		logger.debug( `server exiting with code: ${ code }` );
 		cb();
 	}

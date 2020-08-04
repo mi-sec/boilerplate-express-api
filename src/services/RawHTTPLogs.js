@@ -17,22 +17,22 @@ class RawHTTPLogs extends LimitedArray
 			)
 		);
 	}
-	
+
 	setMaximumLogs( v )
 	{
 		super.max = v;
 	}
-	
+
 	getLogs()
 	{
 		return this;
 	}
-	
+
 	stopLogs()
 	{
 		this.push = () => {};
 	}
-	
+
 	resumeLogs()
 	{
 		this.push = super.push;

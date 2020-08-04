@@ -9,28 +9,38 @@ const
 	io     = require( '@pm2/io' ),
 	Server = require( './core/Server' );
 
+const
+	onStart = require( './hooks/onStart' ),
+	onStop  = require( './hooks/onStop' );
+
 class API extends io.Entrypoint
 {
 	// This is the very first method called on startup
 	async onStart( cb )
 	{
+		await onStart();
+
 		this.server = new Server();
 		await this.server.initialize();
-		this.server.onStart( cb );
+		this.server.onStart( () => {
+			process.send( 'ready' );
+			cb();
+		} );
 	}
-	
+
 	// This is the very last method called on exit || uncaught exception
-	onStop( err, cb, code, signal )
+	async onStop( err, cb, code, signal )
 	{
+		await onStop();
 		this.server.onStop( err, cb, code, signal );
 	}
-	
+
 	// Here we declare some process metrics
 	sensors()
 	{
 		this.server.sensors( this.io );
 	}
-	
+
 	// Here are some actions to interact with the app in live
 	actuators()
 	{

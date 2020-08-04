@@ -30,9 +30,10 @@ module.exports = {
 	validate: ( expected, data ) => new Promise(
 		( res, rej ) => {
 			const validation = struct( expected ).validate( data );
-			if( validation[ 0 ] ) {
+			if ( validation[ 0 ] ) {
 				rej( new Response( 417, { error: validation[ 0 ].message, expected } ) );
-			} else {
+			}
+			else {
 				res( validation[ 1 ] );
 			}
 		}
